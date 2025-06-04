@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountaineer CRM - Complete Facility Protection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8f9fa;
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #002B45 0%, #1a3a52 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-left: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .nav-tabs {
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: #002B45;
+            background: #f8f9fa;
+        }
+
+        .nav-tab.active {
+            color: #002B45;
+            border-bottom-color: #D3222A;
+            background: #fff;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #D3222A;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .metric-card.priority {
+            border-left-color: #D3222A;
+        }
+
+        .metric-card.revenue {
+            border-left-color: #28a745;
+        }
+
+        .metric-card.activity {
+            border-left-color: #002B45;
+        }
+
+        .metric-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #002B45;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .metric-detail {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            color: #002B45;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #D3222A;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #a91e25;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .search-filter-bar {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #D3222A;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .companies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+            padding: 25px;
+        }
+
+        .company-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .company-card:hover {
+            border-color: #D3222A;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .company-card.Lead {
+            border-left: 4px solid #D3222A;
+        }
+
+        .company-card.Customer {
+            border-left: 4px solid #28a745;
+        }
+
+        .company-card.Pipeline {
+            border-left: 4px solid #ffc107;
+        }
+
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .company-name {
+            color: #002B45;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .company-industry {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .industry-icon {
+            font-size: 1.1rem;
+        }
+
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-high-priority {
+            background: #D3222A;
+            color: white;
+        }
+
+        .priority-medium-priority {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .priority-nurture {
+            background: #28a745;
+            color: white;
+        }
+
+        .company-contacts {
+            margin-bottom: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            color: #002B45;
+        }
+
+        .contact-title {
+            color: #666;
+        }
+
+        .contact-primary {
+            color: #D3222A;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .company-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.85rem;
+        }
+
+        .stat-item {
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #002B45;
+            margin-bottom: 2px;
+        }
+
+        .stat-value.overdue {
+            color: #D3222A;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #002B45;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #002B45;
+            margin-bottom: 3px;
+        }
+
+        .activity-company {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .activity-time {
+            color: #888;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .activity-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #D3222A;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            color: #002B45;
+            margin-bottom: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast-success { border-left: 4px solid #28a745; }
+        .toast-error { border-left: 4px solid #D3222A; }
+        .toast-info { border-left: 4px solid #002B45; }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            gap: 10px;
+        }
+
+        .toast-icon { font-size: 1.2rem; }
+        .toast-message { flex: 1; color: #333; }
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            margin: 50px auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            color: #002B45;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #002B45;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #D3222A;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-actions {
+            padding: 20px 25px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-content {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .companies-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .company-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">MOUNTAINEER CRM</div>
+                <div class="tagline">Complete Facility Protection</div>
+            </div>
+            <div class="user-info">
+                <div class="sync-status">
+                    <div class="sync-indicator" id="syncIndicator"></div>
+                    <span id="syncStatus">Connected</span>
+                </div>
+                <span>|</span>
+                <span id="lastSync">Last sync: Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <div class="nav-content">
+            <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="showTab('companies')">Companies</button>
+            <button class="nav-tab" onclick="showTab('activities')">Activities</button>
+            <button class="nav-tab" onclick="showTab('campaigns')">Campaigns</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="metric-card priority">
+                    <div class="metric-number" id="highPriorityLeads">-</div>
+                    <div class="metric-label">High Priority Leads</div>
+                    <div class="metric-detail">Requiring immediate follow-up</div>
+                </div>
+
+                <div class="metric-card revenue">
+                    <div class="metric-number" id="totalCompanies">-</div>
+                    <div class="metric-label">Total Companies</div>
+                    <div class="metric-detail">In your database</div>
+                </div>
+
+                <div class="metric-card activity">
+                    <div class="metric-number" id="hccSubmissions">-</div>
+                    <div class="metric-label">HCC Submissions</div>
+                    <div class="metric-detail">This month</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-number" id="recentActivities">-</div>
+                    <div class="metric-label">Recent Activities</div>
+                    <div class="metric-detail">Last 7 days</div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Activity</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="openActivityModal()">+ Log Activity</button>
+                    </div>
+                </div>
+                <div id="recentActivityList">
+                    <div class="loading">Loading recent activities...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Companies Tab -->
+        <div id="companies" class="tab-content">
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Company Management</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" onclick="exportCompanies()">📤 Export List</button>
+                        <button class="btn btn-primary" onclick="openCompanyModal()">+ Add Company</button>
+                    </div>
+                </div>
+
+                <div class="search-filter-bar">
+                    <input type="text" class="search-input" placeholder="Search companies..." id="companySearch" onkeyup="filterCompanies()">
+                    <select class="filter-select" id="industryFilter" onchange="filterCompanies()">
+                        <option value="">All Industries</option>
+                        <option value="food-beverage">Food & Beverage</option>
+                        <option value="pharmaceutical">Pharmaceutical</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="distribution">Distribution</option>
+                    </select>
+                    <select class="filter-select" id="statusFilter" onchange="filterCompanies()">
+                        <option value="">All Status</option>
+                        <option value="Lead">Leads</option>
+                        <option value="Pipeline">Pipeline</option>
+                        <option value="Customer">Customers</option>
+                    </select>
+                    <select class="filter-select" id="priorityFilter" onchange="filterCompanies()">
+                        <option value="">All Priorities</option>
+                        <option value="High Priority">High Priority</option>
+                        <option value="Medium Priority">Medium Priority</option>
+                        <option value="Nurture">Nurture</option>
+                    </select>
+                    <button class="btn btn-success" onclick="refreshData()">🔄 Refresh</button>
+                </div>
+
+                <div class="companies-grid" id="companiesGrid">
+                    <div class="loading">Loading companies...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activities Tab -->
+        <div id="activities" class="tab-content">
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">All Activities</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="openActivityModal()">+ Log Activity</button>
+                    </div>
+                </div>
+                <div id="allActivities">
+                    <div class="loading">Loading activities...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaigns Tab -->
+        <div id="campaigns" class="tab-content">
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Campaign Export</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="exportFilteredCampaign()">📧 Export Campaign List</button>
+                    </div>
+                </div>
+                
+                <div class="search-filter-bar">
+                    <select class="filter-select" id="campaignIndustryFilter">
+                        <option value="">All Industries</option>
+                        <option value="food-beverage">Food & Beverage</option>
+                        <option value="pharmaceutical">Pharmaceutical</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="distribution">Distribution</option>
+                    </select>
+                    <select class="filter-select" id="campaignStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="Lead">Leads Only</option>
+                        <option value="Pipeline">Pipeline Only</option>
+                    </select>
+                    <select class="filter-select" id="campaignPriorityFilter">
+                        <option value="">All Priorities</option>
+                        <option value="High Priority">High Priority</option>
+                        <option value="Medium Priority">Medium Priority</option>
+                    </select>
+                </div>
+
+                <div id="campaignPreview">
+                    <div class="empty-state">
+                        <h3>Campaign Export Tool</h3>
+                        <p>Filter your contacts and export targeted email lists for marketing campaigns</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Company Modal -->
+    <div id="companyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Company</h3>
+                <button class="modal-close" onclick="closeModal('companyModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="companyForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Company Name*</label>
+                            <input type="text" class="form-input" id="companyName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Industry*</label>
+                            <select class="form-select" id="companyIndustry" required>
+                                <option value="">Select Industry</option>
+                                <option value="food-beverage">Food & Beverage</option>
+                                <option value="pharmaceutical">Pharmaceutical</option>
+                                <option value="manufacturing">Manufacturing</option>
+                                <option value="distribution">Distribution</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Facility Size (sq ft)</label>
+                            <input type="number" class="form-input" id="facilitySize">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Annual Revenue</label>
+                            <select class="form-select" id="annualRevenue">
+                                <option value="">Select Range</option>
+                                <option value="Under $10M">Under $10M</option>
+                                <option value="$10M - $50M">$10M - $50M</option>
+                                <option value="$50M - $100M">$50M - $100M</option>
+                                <option value="$100M - $500M">$100M - $500M</option>
+                                <option value="$500M+">$500M+</option>
+                                <option value="$1B+">$1B+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-input" id="address" placeholder="Street address">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-input" id="city">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <input type="text" class="form-input" id="state" value="NC">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Operation Schedule</label>
+                            <select class="form-select" id="operationSchedule">
+                                <option value="">Select Schedule</option>
+                                <option value="1-shift">Single Shift</option>
+                                <option value="2-shift">Two Shifts</option>
+                                <option value="24/7">24/7 Operations</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Priority Level</label>
+                            <select class="form-select" id="priorityLevel">
+                                <option value="Nurture">Nurture</option>
+                                <option value="Medium Priority">Medium Priority</option>
+                                <option value="High Priority">High Priority</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" id="notes" placeholder="Additional information about this company..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('companyModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCompany()">Save Company</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Activity Modal -->
+    <div id="activityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Log New Activity</h3>
+                <button class="modal-close" onclick="closeModal('activityModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="activityForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Company*</label>
+                            <select class="form-select" id="activityCompany" required>
+                                <option value="">Select Company</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Activity Type*</label>
+                            <select class="form-select" id="activityType" required>
+                                <option value="">Select Type</option>
+                                <option value="Phone Call">Phone Call</option>
+                                <option value="Email">Email</option>
+                                <option value="Site Visit">Site Visit</option>
+                                <option value="Assessment">Assessment</option>
+                                <option value="Proposal">Proposal</option>
+                                <option value="Meeting">Meeting</option>
+                                <option value="Follow-up">Follow-up</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Subject*</label>
+                        <input type="text" class="form-input" id="activitySubject" required placeholder="Brief description of the activity">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="activityDescription" placeholder="Detailed notes about this interaction..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date & Time*</label>
+                            <input type="datetime-local" class="form-input" id="activityDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-input" id="activityDuration" value="30">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Outcome/Next Steps</label>
+                        <input type="text" class="form-input" id="activityOutcome" placeholder="What was accomplished or what happens next?">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Follow-up Required?</label>
+                            <select class="form-select" id="followUpRequired" onchange="toggleFollowUpDate()">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="followUpDateGroup" style="display: none;">
+                            <label class="form-label">Follow-up Date</label>
+                            <input type="date" class="form-input" id="followUpDate">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('activityModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveActivity()">Log Activity</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - YOUR WEB APP URL
+        const CRM_CONFIG = {
+            API_URL: 'https://script.google.com/macros/s/AKfycbxG2Rebj1kvr60MDUhzMP3tq-bC0LSKmHjVdV5N4_OTKFmJVTKzvuRRwcgpmK9TXSR4/exec',
+            RETRY_ATTEMPTS: 3,
+            TIMEOUT: 30000
+        };
+
+        // Global state
+        let crmData = {
+            companies: [],
+            activities: [],
+            metrics: {},
+            lastSync: null,
+            isLoading: false
+        };
+
+        let currentTab = 'dashboard';
+        let filteredCompanies = [];
+
+        // Initialize CRM on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏔️ Initializing Mountaineer CRM...');
+            initializeCRM();
+        });
+
+        // ================================
+        // INITIALIZATION
+        // ================================
+        async function initializeCRM() {
+            showLoadingState(true);
+            
+            try {
+                // Load initial data
+                await loadAllData();
+                
+                // Set up the interface
+                setupInterface();
+                
+                // Update displays
+                updateAllDisplays();
+                
+                showToast('CRM loaded successfully!', 'success');
+                updateSyncStatus('Connected', true);
+                
+            } catch (error) {
+                console.error('Failed to initialize CRM:', error);
+                showToast('Failed to load CRM data. Please refresh the page.', 'error');
+                updateSyncStatus('Connection Error', false);
+            } finally {
+                showLoadingState(false);
+            }
+        }
+
+        function setupInterface() {
+            // Set current datetime for activity form
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('activityDate').value = now.toISOString().slice(0, 16);
+            
+            console.log('✅ Interface setup complete');
+        }
+
+        // ================================
+        // API COMMUNICATION
+        // ================================
+        async function callAPI(action, data = {}) {
+            const payload = {
+                action: action,
+                ...data,
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('📡 API Call:', action, payload);
+
+            for (let attempt = 1; attempt <= CRM_CONFIG.RETRY_ATTEMPTS; attempt++) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), CRM_CONFIG.TIMEOUT);
+
+                    const response = await fetch(CRM_CONFIG.API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (!result.success) {
+                        throw new Error(result.data?.error || 'API call failed');
+                    }
+
+                    console.log('✅ API Success:', action, result.data);
+                    updateLastSyncTime();
+                    return result.data;
+
+                } catch (error) {
+                    console.warn(`⚠️ API attempt ${attempt} failed:`, error.message);
+                    
+                    if (attempt === CRM_CONFIG.RETRY_ATTEMPTS) {
+                        throw new Error(`Failed after ${CRM_CONFIG.RETRY_ATTEMPTS} attempts: ${error.message}`);
+                    }
+                    
+                    // Wait before retry (exponential backoff)
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+                }
+            }
+        }
+
+        // ================================
+        // DATA LOADING
+        // ================================
+        async function loadAllData() {
+            try {
+                console.log('📊 Loading all data...');
+                
+                // Load data in parallel
+                const [companies, metrics] = await Promise.all([
+                    callAPI('getCompanies'),
+                    callAPI('getDashboardMetrics')
+                ]);
+
+                // Store in global state
+                crmData.companies = companies || [];
+                crmData.metrics = metrics || {};
+                filteredCompanies = [...crmData.companies];
+
+                console.log(`✅ Loaded ${crmData.companies.length} companies`);
+                
+            } catch (error) {
+                console.error('❌ Failed to load data:', error);
+                throw error;
+            }
+        }
+
+        async function refreshData() {
+            showToast('Refreshing data...', 'info');
+            
+            try {
+                await loadAllData();
+                updateAllDisplays();
+                showToast('Data refreshed successfully!', 'success');
+                updateSyncStatus('Connected', true);
+            } catch (error) {
+                console.error('Failed to refresh data:', error);
+                showToast('Failed to refresh data. Please try again.', 'error');
+                updateSyncStatus('Sync Error', false);
+            }
+        }
+
+        // ================================
+        // DISPLAY UPDATES
+        // ================================
+        function updateAllDisplays() {
+            updateDashboardMetrics();
+            updateCompaniesDisplay();
+            updateRecentActivities();
+            populateCompanyDropdown();
+        }
+
+        function updateDashboardMetrics() {
+            const metrics = crmData.metrics;
+            
+            // Update metric cards
+            document.getElementById('highPriorityLeads').textContent = metrics.highPriorityLeads || 0;
+            document.getElementById('totalCompanies').textContent = metrics.totalCompanies || 0;
+            document.getElementById('hccSubmissions').textContent = metrics.hccSubmissionsThisMonth || 0;
+            document.getElementById('recentActivities').textContent = metrics.activitiesThisWeek || 0;
+        }
+
+        function updateCompaniesDisplay() {
+            const grid = document.getElementById('companiesGrid');
+            
+            if (filteredCompanies.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No companies found</h3>
+                        <p>Try adjusting your filters or add a new company</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredCompanies.map(company => createCompanyCard(company)).join('');
+        }
+
+        function createCompanyCard(company) {
+            const industryIcons = {
+                'food-beverage': '🏭',
+                'pharmaceutical': '⚗️',
+                'manufacturing': '⚙️',
+                'distribution': '📦'
+            };
+
+            const industryLabels = {
+                'food-beverage': 'Food & Beverage',
+                'pharmaceutical': 'Pharmaceutical',
+                'manufacturing': 'Manufacturing',
+                'distribution': 'Distribution'
+            };
+
+            const industryIcon = industryIcons[company.industry] || '🏢';
+            const industryLabel = industryLabels[company.industry] || company.industry;
+            const priorityClass = (company.priority_level || '').toLowerCase().replace(/\s+/g, '-');
+            
+            const primaryContact = company.contacts?.find(c => c.is_primary === 'TRUE' || c.is_primary === true) || company.contacts?.[0];
+            const additionalContacts = company.contacts?.filter(c => c.is_primary !== 'TRUE' && c.is_primary !== true) || [];
+
+            const daysSinceContact = calculateDaysSince(company.last_contact_date);
+            const facilitySize = company.facility_size ? parseInt(company.facility_size).toLocaleString() : 'Unknown';
+
+            return `
+                <div class="company-card ${company.status}" data-company-id="${company.company_id}">
+                    <div class="company-header">
+                        <div>
+                            <div class="company-name">${company.company_name || 'Unknown Company'}</div>
+                            <div class="company-industry">
+                                <span class="industry-icon">${industryIcon}</span>
+                                ${industryLabel}
+                            </div>
+                        </div>
+                        <div class="priority-badge priority-${priorityClass}">
+                            ${company.priority_level || 'Nurture'}
+                        </div>
+                    </div>
+
+                    <div class="company-contacts">
+                        ${primaryContact ? `
+                            <div class="contact-item">
+                                <span class="contact-name">${primaryContact.full_name || primaryContact.first_name || 'No Contact'}</span>
+                                <span class="contact-title">(${primaryContact.title || 'No Title'})</span>
+                                <span class="contact-primary">PRIMARY</span>
+                            </div>
+                        ` : '<div class="contact-item"><span class="contact-name">No contacts</span></div>'}
+                        ${additionalContacts.slice(0, 2).map(contact => `
+                            <div class="contact-item">
+                                <span class="contact-name">${contact.full_name || contact.first_name || 'Unknown'}</span>
+                                <span class="contact-title">(${contact.title || 'No Title'})</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="company-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${facilitySize} sq ft</div>
+                            <div>Facility Size</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${company.drive_time_minutes || 0} min</div>
+                            <div>Drive Time</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${company.city || 'Unknown'}, ${company.state || 'Unknown'}</div>
+                            <div>Location</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value ${daysSinceContact > 30 ? 'overdue' : ''}">${daysSinceContact} days ago</div>
+                            <div>Last Contact</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateRecentActivities() {
+            // This would load recent activities from all companies
+            const activityList = document.getElementById('recentActivityList');
+            activityList.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-icon">📊</div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <div>
+                                <div class="activity-title">CRM System Connected</div>
+                                <div class="activity-company">System Activity</div>
+                            </div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                        <div class="activity-description">Your CRM is successfully connected to Google Sheets database</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================================
+        // FILTERING
+        // ================================
+        function filterCompanies() {
+            const searchTerm = document.getElementById('companySearch').value.toLowerCase();
+            const industryFilter = document.getElementById('industryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+
+            filteredCompanies = crmData.companies.filter(company => {
+                const matchesSearch = !searchTerm || 
+                    (company.company_name || '').toLowerCase().includes(searchTerm) ||
+                    (company.city || '').toLowerCase().includes(searchTerm) ||
+                    (company.contacts || []).some(c => 
+                        (c.full_name || c.first_name || '').toLowerCase().includes(searchTerm)
+                    );
+
+                const matchesIndustry = !industryFilter || company.industry === industryFilter;
+                const matchesStatus = !statusFilter || company.status === statusFilter;
+                const matchesPriority = !priorityFilter || company.priority_level === priorityFilter;
+
+                return matchesSearch && matchesIndustry && matchesStatus && matchesPriority;
+            });
+
+            updateCompaniesDisplay();
+        }
+
+        // ================================
+        // MODAL FUNCTIONS
+        // ================================
+        function openCompanyModal() {
+            document.getElementById('companyModal').style.display = 'block';
+            // Reset form
+            document.getElementById('companyForm').reset();
+        }
+
+        function openActivityModal() {
+            document.getElementById('activityModal').style.display = 'block';
+            // Reset form
+            document.getElementById('activityForm').reset();
+            
+            // Set current datetime
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('activityDate').value = now.toISOString().slice(0, 16);
+            
+            populateCompanyDropdown();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function toggleFollowUpDate() {
+            const required = document.getElementById('followUpRequired').value === 'true';
+            const dateGroup = document.getElementById('followUpDateGroup');
+            dateGroup.style.display = required ? 'block' : 'none';
+        }
+
+        function populateCompanyDropdown() {
+            const select = document.getElementById('activityCompany');
+            select.innerHTML = '<option value="">Select Company</option>';
+            
+            crmData.companies.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company.company_id;
+                option.textContent = company.company_name;
+                select.appendChild(option);
+            });
+        }
+
+        // ================================
+        // SAVE FUNCTIONS
+        // ================================
+        async function saveCompany() {
+            const form = document.getElementById('companyForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const companyData = {
+                name: document.getElementById('companyName').value,
+                industry: document.getElementById('companyIndustry').value,
+                facilitySize: document.getElementById('facilitySize').value,
+                revenue: document.getElementById('annualRevenue').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                operationSchedule: document.getElementById('operationSchedule').value,
+                priorityLevel: document.getElementById('priorityLevel').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                showLoadingState(true);
+                await callAPI('createCompany', { companyData });
+                
+                closeModal('companyModal');
+                showToast('Company created successfully!', 'success');
+                
+                // Refresh data to show new company
+                await refreshData();
+                
+            } catch (error) {
+                console.error('Failed to create company:', error);
+                showToast('Failed to create company. Please try again.', 'error');
+            } finally {
+                showLoadingState(false);
+            }
+        }
+
+        async function saveActivity() {
+            const form = document.getElementById('activityForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const activityData = {
+                company_id: document.getElementById('activityCompany').value,
+                activity_type: document.getElementById('activityType').value,
+                subject: document.getElementById('activitySubject').value,
+                description: document.getElementById('activityDescription').value,
+                activity_date: new Date(document.getElementById('activityDate').value),
+                duration_minutes: parseInt(document.getElementById('activityDuration').value) || 0,
+                outcome: document.getElementById('activityOutcome').value,
+                follow_up_required: document.getElementById('followUpRequired').value === 'true',
+                follow_up_date: document.getElementById('followUpDate').value || '',
+                created_by: 'CRM User'
+            };
+
+            try {
+                showLoadingState(true);
+                await callAPI('createActivity', { activityData });
+                
+                closeModal('activityModal');
+                showToast('Activity logged successfully!', 'success');
+                
+                // Refresh data to show updated last contact dates
+                await refreshData();
+                
+            } catch (error) {
+                console.error('Failed to create activity:', error);
+                showToast('Failed to log activity. Please try again.', 'error');
+            } finally {
+                showLoadingState(false);
+            }
+        }
+
+        // ================================
+        // EXPORT FUNCTIONS
+        // ================================
+        async function exportCompanies() {
+            try {
+                showLoadingState(true);
+                
+                const filters = {
+                    industry: document.getElementById('industryFilter').value,
+                    status: document.getElementById('statusFilter').value,
+                    priority: document.getElementById('priorityFilter').value,
+                    search: document.getElementById('companySearch').value
+                };
+
+                const exportData = await callAPI('exportCampaignList', { filters });
+                downloadCSV(exportData, 'mountaineer-companies-export');
+                
+                showToast(`Exported ${exportData.count} companies successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('Failed to export companies:', error);
+                showToast('Failed to export companies. Please try again.', 'error');
+            } finally {
+                showLoadingState(false);
+            }
+        }
+
+        async function exportFilteredCampaign() {
+            try {
+                showLoadingState(true);
+                
+                const filters = {
+                    industry: document.getElementById('campaignIndustryFilter').value,
+                    status: document.getElementById('campaignStatusFilter').value,
+                    priority: document.getElementById('campaignPriorityFilter').value
+                };
+
+                const exportData = await callAPI('exportCampaignList', { filters });
+                downloadCSV(exportData, 'mountaineer-campaign-export');
+                
+                showToast(`Campaign list exported: ${exportData.count} contacts!`, 'success');
+                
+            } catch (error) {
+                console.error('Failed to export campaign:', error);
+                showToast('Failed to export campaign list. Please try again.', 'error');
+            } finally {
+                showLoadingState(false);
+            }
+        }
+
+        function downloadCSV(exportData, filename) {
+            const headers = [
+                'Company Name', 'Contact Name', 'Contact Email', 'Contact Title',
+                'Industry', 'Facility Size', 'Location', 'Priority Level',
+                'Last Contact', 'Qualification Score'
+            ];
+
+            const csvContent = [
+                headers.join(','),
+                ...exportData.data.map(row => [
+                    `"${row.company_name || ''}"`,
+                    `"${row.contact_name || ''}"`,
+                    `"${row.contact_email || ''}"`,
+                    `"${row.contact_title || ''}"`,
+                    `"${row.industry || ''}"`,
+                    `"${row.facility_size || ''}"`,
+                    `"${row.location || ''}"`,
+                    `"${row.priority_level || ''}"`,
+                    `"${row.last_contact || ''}"`,
+                    `"${row.qualification_score || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = `${filename}-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // ================================
+        // TAB NAVIGATION
+        // ================================
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            currentTab = tabName;
+
+            // Load tab-specific data if needed
+            if (tabName === 'activities') {
+                loadAllActivities();
+            }
+        }
+
+        async function loadAllActivities() {
+            const container = document.getElementById('allActivities');
+            container.innerHTML = '<div class="loading">Loading all activities...</div>';
+            
+            // This would load activities from all companies
+            // For now, show a placeholder
+            setTimeout(() => {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Activities Coming Soon</h3>
+                        <p>Activity history and management features will be available in the next update</p>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        // ================================
+        // UI HELPER FUNCTIONS
+        // ================================
+        function showLoadingState(isLoading) {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.disabled = isLoading;
+            });
+
+            if (isLoading) {
+                updateSyncStatus('Syncing...', true);
+            }
+        }
+
+        function updateSyncStatus(status, isConnected) {
+            document.getElementById('syncStatus').textContent = status;
+            const indicator = document.getElementById('syncIndicator');
+            indicator.style.background = isConnected ? '#28a745' : '#D3222A';
+        }
+
+        function updateLastSyncTime() {
+            crmData.lastSync = new Date();
+            document.getElementById('lastSync').textContent = `Last sync: ${formatTimeAgo(crmData.lastSync)}`;
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMinutes = Math.floor((now - date) / (1000 * 60));
+            
+            if (diffMinutes < 1) return 'Just now';
+            if (diffMinutes < 60) return `${diffMinutes}m ago`;
+            
+            const diffHours = Math.floor(diffMinutes / 60);
+            if (diffHours < 24) return `${diffHours}h ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays}d ago`;
+        }
+
+        function calculateDaysSince(dateString) {
+            if (!dateString) return 999;
+            
+            try {
+                const date = new Date(dateString);
+                const today = new Date();
+                const diffTime = Math.abs(today - date);
+                return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            } catch (error) {
+                return 999;
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <span class="toast-icon">${icons[type] || icons.info}</span>
+                    <span class="toast-message">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="toast-close">×</button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // ================================
+        // CLOSE MODALS ON OUTSIDE CLICK
+        // ================================
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // ================================
+        // KEYBOARD SHORTCUTS
+        // ================================
+        document.addEventListener('keydown', function(event) {
+            // Escape key closes modals
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.style.display = 'none';
+                });
+            }
+            
+            // Ctrl/Cmd + R refreshes data
+            if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
+                event.preventDefault();
+                refreshData();
+            }
+        });
+
+        console.log('🏔️ Mountaineer CRM Interface Loaded Successfully!');
+    </script>
+</body>
+</html>

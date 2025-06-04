@@ -1096,57 +1096,48 @@
         // ================================
         // API COMMUNICATION
         // ================================
-        async function callAPI(action, data = {}) {
-            const payload = {
+        async function async function callAPI(action, data = {}) {
+    console.log('📡 API Call (GET):', action, data);
+    
+    for (let attempt = 1; attempt <= CRM_CONFIG.RETRY_ATTEMPTS; attempt++) {
+        try {
+            const params = new URLSearchParams({
                 action: action,
-                ...data,
+                data: JSON.stringify(data),
                 timestamp: new Date().toISOString()
-            };
+            });
+            
+            const url = `${CRM_CONFIG.API_URL}?${params.toString()}`;
+            
+            const response = await fetch(url, {
+                method: 'GET'
+            });
 
-            console.log('📡 API Call:', action, payload);
-
-            for (let attempt = 1; attempt <= CRM_CONFIG.RETRY_ATTEMPTS; attempt++) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), CRM_CONFIG.TIMEOUT);
-
-                    const response = await fetch(CRM_CONFIG.API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload),
-                        signal: controller.signal
-                    });
-
-                    clearTimeout(timeoutId);
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-
-                    const result = await response.json();
-                    
-                    if (!result.success) {
-                        throw new Error(result.data?.error || 'API call failed');
-                    }
-
-                    console.log('✅ API Success:', action, result.data);
-                    updateLastSyncTime();
-                    return result.data;
-
-                } catch (error) {
-                    console.warn(`⚠️ API attempt ${attempt} failed:`, error.message);
-                    
-                    if (attempt === CRM_CONFIG.RETRY_ATTEMPTS) {
-                        throw new Error(`Failed after ${CRM_CONFIG.RETRY_ATTEMPTS} attempts: ${error.message}`);
-                    }
-                    
-                    // Wait before retry (exponential backoff)
-                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
-                }
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.data?.error || 'API call failed');
+            }
+
+            console.log('✅ API Success (GET):', action, result.data);
+            updateLastSyncTime();
+            return result.data;
+
+        } catch (error) {
+            console.warn(`⚠️ API attempt ${attempt} failed:`, error.message);
+            
+            if (attempt === CRM_CONFIG.RETRY_ATTEMPTS) {
+                throw new Error(`Failed after ${CRM_CONFIG.RETRY_ATTEMPTS} attempts: ${error.message}`);
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
         }
+    }
+}
 
         // ================================
         // DATA LOADING

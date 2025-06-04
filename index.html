@@ -1096,7 +1096,7 @@
         // ================================
         // API COMMUNICATION
         // ================================
-        async function async function callAPI(action, data = {}) {
+        async function callAPI(action, data = {}) {
     console.log('📡 API Call (GET):', action, data);
     
     for (let attempt = 1; attempt <= CRM_CONFIG.RETRY_ATTEMPTS; attempt++) {

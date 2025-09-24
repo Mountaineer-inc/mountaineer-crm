@@ -420,6 +420,106 @@
         .color-success { color: var(--margin-good); }
         .hidden { display: none; }
 
+        .internal-tabs {
+            display: flex;
+            background: var(--light-gray);
+            border-bottom: 2px solid var(--border-gray);
+        }
+
+        .internal-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            color: #666;
+        }
+
+        .internal-tab.active {
+            background: var(--pure-white);
+            color: var(--mountaineer-navy);
+            border-bottom-color: var(--mountaineer-red);
+        }
+
+        .internal-tab:hover:not(.active) {
+            background: #f0f0f0;
+            color: var(--mountaineer-navy);
+        }
+
+        .internal-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-gray);
+            border-radius: var(--border-radius);
+            background: #f8f9fa;
+        }
+
+        .detail-section h4 {
+            color: var(--mountaineer-navy);
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .kit-requirement {
+            background: var(--pure-white);
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        .kit-requirement .product-name {
+            font-weight: 600;
+            color: var(--mountaineer-navy);
+            margin-bottom: 4px;
+        }
+
+        .kit-requirement .purchase-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .margin-status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            margin: 5px 0;
+        }
+
+        .margin-good { background-color: var(--margin-good); }
+        .margin-warning { background-color: var(--margin-warning); }
+        .margin-danger { background-color: var(--margin-danger); }
+        .margin-critical { background-color: var(--margin-critical); }
+
         @media (max-width: 1200px) {
             .panels-container {
                 grid-template-columns: 1fr;
@@ -610,6 +710,7 @@
                     </div>
                     
                     <button class="quote-button" onclick="generateQuote()">Generate Quote</button>
+                    <button class="quote-button" onclick="openInternalDetails()" style="background: linear-gradient(135deg, #002B45 0%, #003d5c 100%); margin-top: 10px;">Internal Details</button>
                 </div>
             </div>
         </div>
@@ -647,6 +748,37 @@
                 <button class="close-btn" onclick="closeModal('quote-modal')">&times;</button>
             </div>
             <div id="quote-content"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="internal-details-modal">
+        <div class="modal" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">Internal Business Details</h3>
+                <button class="close-btn" onclick="closeModal('internal-details-modal')">&times;</button>
+            </div>
+            
+            <div class="internal-tabs">
+                <div class="internal-tab active" data-tab="materials">Materials</div>
+                <div class="internal-tab" data-tab="labor">Labor</div>
+                <div class="internal-tab" data-tab="margins">Margins</div>
+                <div class="internal-tab" data-tab="shopping">Shopping List</div>
+            </div>
+            
+            <div class="internal-content">
+                <div id="materials-tab" class="tab-content active">
+                    <div id="materials-details"></div>
+                </div>
+                <div id="labor-tab" class="tab-content">
+                    <div id="labor-details"></div>
+                </div>
+                <div id="margins-tab" class="tab-content">
+                    <div id="margins-details"></div>
+                </div>
+                <div id="shopping-tab" class="tab-content">
+                    <div id="shopping-details"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1066,7 +1198,7 @@
                 price: service.price,
                 system: system,
                 costs: materialCosts,
-                laborHours: calculateLaborHours(service, quantity, unit)
+                laborHours: calculateAccurateLaborHours(serviceKey, quantity, unit)
             };
             
             appState.activeZone.services.push(newService);
@@ -1122,15 +1254,140 @@
             }
         }
 
-        function calculateLaborHours(service, quantity, unit) {
-            if (unit === 'sqft') {
-                return (service.laborHours / 1000) * quantity;
-            } else if (unit === 'linear ft') {
-                return service.laborHours * quantity;
-            } else if (unit === 'hour') {
-                return service.laborHours * quantity;
+        // IMPROVED LABOR CALCULATION SYSTEM
+        const laborCalculations = {
+            // Base setup/cleanup times (hours)
+            baseSetup: {
+                prep: 1.0,        // Floor prep base time
+                application: 1.5,  // Epoxy application base time
+                striping: 0.5,     // Striping setup time
+                patching: 0.25     // Patching setup time
+            },
+            
+            // Hours per square foot by complexity
+            hoursPerSqFt: {
+                // Floor prep rates
+                prep: {
+                    light: 0.00075,    // Average of 0.00067-0.00083
+                    moderate: 0.001125, // Average of 0.001-0.00125
+                    heavy: 0.001715    // Average of 0.00143-0.002
+                },
+                // Epoxy application rates
+                epoxy: {
+                    light: 0.00146,    // Average of 0.00125-0.00167
+                    moderate: 0.002085, // Average of 0.00167-0.0025
+                    heavy: 0.00325     // Average of 0.0025-0.004
+                },
+                // Multi-component systems (flake, quartz)
+                decorative: {
+                    light: 0.002,      // Random flake
+                    moderate: 0.0025,  // Full flake
+                    heavy: 0.003       // Quartz systems
+                }
+            },
+            
+            // Linear foot rates (hours per linear foot)
+            hoursPerLinearFt: {
+                striping: 0.02,        // 50 linear feet per hour
+                floorboard: 0.05,      // 20 linear feet per hour
+                complexStriping: 0.033 // 30 linear feet per hour
             }
-            return 0;
+        };
+
+        function calculateAccurateLaborHours(serviceKey, quantity, unit) {
+            const calc = laborCalculations;
+            let baseTime = 0;
+            let variableTime = 0;
+            
+            if (unit === 'sqft') {
+                switch(serviceKey) {
+                    case 'polish-seal':
+                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.prep.light;
+                        break;
+                    case 'solid-epoxy':
+                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.epoxy.moderate;
+                        break;
+                    case 'random-flake':
+                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.decorative.light;
+                        break;
+                    case 'full-flake':
+                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.decorative.moderate;
+                        break;
+                    case 'quartz':
+                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.decorative.heavy;
+                        break;
+                    case 'urethane-cement':
+                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.epoxy.heavy;
+                        break;
+                    case 'extra-floor-prep':
+                        baseTime = calc.baseSetup.prep;
+                        variableTime = quantity * calc.hoursPerSqFt.prep.moderate;
+                        break;
+                    case 'additional-top-coat':
+                        baseTime = calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.epoxy.light;
+                        break;
+                    default:
+                        baseTime = calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerSqFt.epoxy.moderate;
+                }
+            } else if (unit === 'linear ft') {
+                switch(serviceKey) {
+                    case 'integrated-floorboard':
+                        baseTime = calc.baseSetup.application;
+                        variableTime = quantity * calc.hoursPerLinearFt.floorboard;
+                        break;
+                    case 'simple-striping':
+                        baseTime = calc.baseSetup.striping;
+                        variableTime = quantity * calc.hoursPerLinearFt.striping;
+                        break;
+                    case 'complex-striping':
+                    case 'wording-striping':
+                        baseTime = calc.baseSetup.striping;
+                        variableTime = quantity * calc.hoursPerLinearFt.complexStriping;
+                        break;
+                    default:
+                        baseTime = calc.baseSetup.striping;
+                        variableTime = quantity * calc.hoursPerLinearFt.striping;
+                }
+            } else if (unit === 'hour') {
+                // Hourly services like concrete patching
+                baseTime = calc.baseSetup.patching;
+                variableTime = quantity; // Direct hourly
+            }
+            
+            return Math.max(0.5, baseTime + variableTime); // Minimum 0.5 hours
+        }
+
+        function calculateProjectTimeline(zones, crewSize = 3) {
+            let totalHours = 0;
+            let criticalPathDays = 0;
+            
+            zones.forEach(zone => {
+                let zoneHours = 0;
+                zone.services.forEach(service => {
+                    const serviceHours = calculateAccurateLaborHours(service.key, service.quantity, service.unit);
+                    zoneHours += serviceHours;
+                    totalHours += serviceHours;
+                });
+                
+                // Calculate days for this zone (8 hours per day, parallel work possible)
+                const zoneDays = Math.ceil(zoneHours / (8 * crewSize));
+                criticalPathDays = Math.max(criticalPathDays, zoneDays);
+            });
+            
+            return {
+                totalLaborHours: totalHours,
+                workingDays: Math.max(1, criticalPathDays),
+                averageHoursPerDay: totalHours / Math.max(1, criticalPathDays),
+                crewUtilization: (totalHours / (criticalPathDays * 8 * crewSize)) * 100
+            };
         }
 
         function updateTotals() {
@@ -1155,7 +1412,7 @@
                         totalMaterialCost += serviceTotal * 0.25;
                     }
                     
-                    const laborHours = service.laborHours || 0;
+                    const laborHours = calculateAccurateLaborHours(service.key, service.quantity, service.unit);
                     totalLaborCost += laborHours * crewSize * hourlyRate;
                 });
             });
@@ -1208,6 +1465,7 @@
             
             const customerName = document.getElementById('customer-name').value || 'Customer Name Not Specified';
             const projectName = document.getElementById('project-name').value || 'Project Name Not Specified';
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
             
             let totalPrice = 0;
             let totalSqft = 0;
@@ -1223,6 +1481,9 @@
             const discountAmount = totalPrice * (discountPercent / 100);
             const netPrice = totalPrice - discountAmount;
             
+            // Calculate project timeline
+            const timeline = calculateProjectTimeline(appState.zones, crewSize);
+            
             document.getElementById('quote-modal').style.display = 'flex';
             document.getElementById('quote-content').innerHTML = `
                 <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
@@ -1230,6 +1491,10 @@
                     <div><strong>Customer:</strong> ${customerName}</div>
                     <div><strong>Project:</strong> ${projectName}</div>
                     <div><strong>Total Square Footage:</strong> ${totalSqft.toLocaleString()} sqft</div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #ddd;">
+                        <strong>Estimated Timeline:</strong> ${timeline.workingDays} working day${timeline.workingDays > 1 ? 's' : ''} 
+                        (${timeline.totalLaborHours.toFixed(1)} total labor hours with ${crewSize}-person crew)
+                    </div>
                 </div>
                 
                 <div style="margin-bottom: 20px;">
@@ -1296,6 +1561,404 @@
             linkElement.click();
         }
 
+        function openInternalDetails() {
+            if (appState.zones.length === 0) {
+                alert('Please add zones and services before viewing internal details.');
+                return;
+            }
+            
+            generateInternalDetails();
+            document.getElementById('internal-details-modal').style.display = 'flex';
+        }
+
+        function switchInternalTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.internal-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === `${tabName}-tab`);
+            });
+        }
+
+        function generateInternalDetails() {
+            const hourlyRate = parseFloat(document.getElementById('hourly-rate').value) || 30;
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
+            const wasteFactor = parseInt(document.getElementById('waste-factor').value) || 15;
+            
+            let allMaterials = [];
+            let allLabor = [];
+            let allMargins = [];
+            let shoppingList = new Map();
+            
+            // Calculate details for each zone and service
+            appState.zones.forEach((zone, zoneIndex) => {
+                zone.services.forEach((service, serviceIndex) => {
+                    const system = systems[service.systemKey];
+                    const serviceData = services[appState.activeTab === 'sqft' ? 'sqft' : 
+                                                 appState.activeTab === 'linear' ? 'linear' : 'hourly'][service.key] || 
+                                       services.sqft[service.key] || services.linear[service.key] || services.hourly[service.key];
+                    
+                    if (system && serviceData) {
+                        // Materials calculation
+                        const materialDetails = calculateDetailedMaterials(system, service.quantity, wasteFactor);
+                        allMaterials.push({
+                            zoneName: zone.name,
+                            serviceName: service.name,
+                            systemName: system.name,
+                            quantity: service.quantity,
+                            unit: service.unit,
+                            ...materialDetails
+                        });
+                        
+                        // Labor calculation
+                        const laborHours = calculateAccurateLaborHours(service.key, service.quantity, service.unit);
+                        const laborCost = laborHours * crewSize * hourlyRate;
+                        allLabor.push({
+                            zoneName: zone.name,
+                            serviceName: service.name,
+                            quantity: service.quantity,
+                            unit: service.unit,
+                            laborHours: laborHours,
+                            crewSize: crewSize,
+                            hourlyRate: hourlyRate,
+                            totalLaborCost: laborCost,
+                            timeline: serviceData.timeline || 1
+                        });
+                        
+                        // Margin calculation
+                        const revenue = service.quantity * service.price;
+                        const materialCost = materialDetails.totalMaterialCost;
+                        const totalCost = materialCost + laborCost;
+                        const profit = revenue - totalCost;
+                        const marginPercent = revenue > 0 ? (profit / revenue) * 100 : 0;
+                        
+                        allMargins.push({
+                            zoneName: zone.name,
+                            serviceName: service.name,
+                            revenue: revenue,
+                            materialCost: materialCost,
+                            laborCost: laborCost,
+                            totalCost: totalCost,
+                            profit: profit,
+                            marginPercent: marginPercent
+                        });
+                        
+                        // Shopping list compilation
+                        if (materialDetails.requirements) {
+                            materialDetails.requirements.forEach(req => {
+                                const key = req.product;
+                                if (shoppingList.has(key)) {
+                                    const existing = shoppingList.get(key);
+                                    existing.totalKits += req.kitsNeeded;
+                                    existing.totalCost += req.totalCost;
+                                    existing.zones.add(zone.name);
+                                } else {
+                                    shoppingList.set(key, {
+                                        product: req.product,
+                                        costPerKit: req.costPerKit,
+                                        totalKits: req.kitsNeeded,
+                                        totalCost: req.totalCost,
+                                        zones: new Set([zone.name])
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Generate content for each tab
+            generateMaterialsContent(allMaterials);
+            generateLaborContent(allLabor);
+            generateMarginsContent(allMargins);
+            generateShoppingContent(shoppingList);
+        }
+
+        function calculateDetailedMaterials(system, quantity, wasteFactor) {
+            const adjustedQuantity = quantity * (1 + wasteFactor / 100);
+            let totalMaterialCost = 0;
+            let requirements = [];
+            
+            if (system.type === 'simple') {
+                const kitsNeeded = Math.ceil(adjustedQuantity / system.coverage);
+                const cost = kitsNeeded * system.kitCost;
+                const excess = (kitsNeeded * system.coverage) - adjustedQuantity;
+                
+                totalMaterialCost = cost;
+                requirements.push({
+                    name: system.name,
+                    product: system.name,
+                    kitsNeeded: kitsNeeded,
+                    costPerKit: system.kitCost,
+                    totalCost: cost,
+                    coverage: system.coverage,
+                    excess: excess
+                });
+            } else if (system.components) {
+                system.components.forEach(component => {
+                    const kitsNeeded = Math.ceil(adjustedQuantity / component.coverage);
+                    const cost = kitsNeeded * component.kitCost;
+                    const excess = (kitsNeeded * component.coverage) - adjustedQuantity;
+                    
+                    totalMaterialCost += cost;
+                    requirements.push({
+                        name: component.name,
+                        product: component.product,
+                        kitsNeeded: kitsNeeded,
+                        costPerKit: component.kitCost,
+                        totalCost: cost,
+                        coverage: component.coverage,
+                        excess: excess
+                    });
+                });
+            }
+            
+            return {
+                totalMaterialCost,
+                requirements,
+                adjustedQuantity,
+                wasteFactor
+            };
+        }
+
+        function generateMaterialsContent(materialsData) {
+            const container = document.getElementById('materials-details');
+            
+            let html = '<h3 style="color: #002B45; margin-bottom: 20px;">Material Requirements by Zone</h3>';
+            
+            const groupedByZone = materialsData.reduce((acc, item) => {
+                if (!acc[item.zoneName]) acc[item.zoneName] = [];
+                acc[item.zoneName].push(item);
+                return acc;
+            }, {});
+            
+            Object.entries(groupedByZone).forEach(([zoneName, services]) => {
+                html += `<div class="detail-section">`;
+                html += `<h4>${zoneName}</h4>`;
+                
+                services.forEach(service => {
+                    html += `<div style="margin: 15px 0; padding: 10px; background: white; border-radius: 4px;">`;
+                    html += `<div style="font-weight: 600; color: #002B45; margin-bottom: 8px;">${service.serviceName} - ${service.systemName}</div>`;
+                    html += `<div style="font-size: 12px; color: #666; margin-bottom: 10px;">Quantity: ${service.quantity.toLocaleString()} ${service.unit} (${service.adjustedQuantity.toFixed(0)} with ${service.wasteFactor}% waste)</div>`;
+                    
+                    if (service.requirements) {
+                        service.requirements.forEach(req => {
+                            html += `<div class="kit-requirement">`;
+                            html += `<div class="product-name">${req.name}</div>`;
+                            html += `<div class="purchase-info">Buy ${req.kitsNeeded} kits of ${req.product} @ ${req.costPerKit.toFixed(2)}/kit = ${req.totalCost.toFixed(2)}</div>`;
+                            html += `<div style="font-size: 11px; color: #666; margin-top: 4px;">Coverage: ${req.coverage} ${service.unit}/kit | Excess: ${req.excess.toFixed(0)} ${service.unit}</div>`;
+                            html += `</div>`;
+                        });
+                    }
+                    
+                    html += `<div style="text-align: right; font-weight: 600; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">`;
+                    html += `Material Cost: ${service.totalMaterialCost.toFixed(2)}`;
+                    html += `</div>`;
+                    html += `</div>`;
+                });
+                
+                html += `</div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function generateLaborContent(laborData) {
+            const container = document.getElementById('labor-details');
+            
+            let html = '<h3 style="color: #002B45; margin-bottom: 20px;">Labor Analysis by Zone</h3>';
+            
+            const groupedByZone = laborData.reduce((acc, item) => {
+                if (!acc[item.zoneName]) acc[item.zoneName] = [];
+                acc[item.zoneName].push(item);
+                return acc;
+            }, {});
+            
+            let totalProjectHours = 0;
+            let totalProjectCost = 0;
+            
+            Object.entries(groupedByZone).forEach(([zoneName, services]) => {
+                html += `<div class="detail-section">`;
+                html += `<h4>${zoneName}</h4>`;
+                
+                let zoneHours = 0;
+                let zoneCost = 0;
+                
+                services.forEach(service => {
+                    html += `<div class="detail-row">`;
+                    html += `<div>`;
+                    html += `<div style="font-weight: 600;">${service.serviceName}</div>`;
+                    html += `<div style="font-size: 12px; color: #666;">${service.quantity.toLocaleString()} ${service.unit} | ${service.timeline} day${service.timeline > 1 ? 's' : ''}</div>`;
+                    html += `</div>`;
+                    html += `<div style="text-align: right;">`;
+                    html += `<div style="font-weight: 600;">${service.totalLaborCost.toFixed(2)}</div>`;
+                    html += `<div style="font-size: 12px; color: #666;">${service.laborHours.toFixed(1)}hrs × ${service.crewSize} crew × ${service.hourlyRate}/hr</div>`;
+                    html += `</div>`;
+                    html += `</div>`;
+                    
+                    zoneHours += service.laborHours;
+                    zoneCost += service.totalLaborCost;
+                });
+                
+                html += `<div style="border-top: 2px solid #002B45; margin-top: 10px; padding-top: 10px; font-weight: 600;">`;
+                html += `Zone Total: ${zoneCost.toFixed(2)} (${zoneHours.toFixed(1)} hours)`;
+                html += `</div>`;
+                html += `</div>`;
+                
+                totalProjectHours += zoneHours;
+                totalProjectCost += zoneCost;
+            });
+            
+            html += `<div class="detail-section" style="background: #002B45; color: white;">`;
+            html += `<h4 style="color: white;">Project Labor Summary</h4>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3);">`;
+            html += `<span>Total Labor Hours:</span><span>${totalProjectHours.toFixed(1)} hours</span>`;
+            html += `</div>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3);">`;
+            html += `<span>Total Labor Cost:</span><span>${totalProjectCost.toFixed(2)}</span>`;
+            html += `</div>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3); border-bottom: none;">`;
+            html += `<span>Estimated Duration:</span><span>${Math.ceil(totalProjectHours / (8 * parseInt(document.getElementById('crew-size').value || 3)))} working days</span>`;
+            html += `</div>`;
+            html += `</div>`;
+            
+            container.innerHTML = html;
+        }
+
+        function generateMarginsContent(marginsData) {
+            const container = document.getElementById('margins-details');
+            
+            let html = '<h3 style="color: #002B45; margin-bottom: 20px;">Margin Analysis by Service</h3>';
+            
+            const groupedByZone = marginsData.reduce((acc, item) => {
+                if (!acc[item.zoneName]) acc[item.zoneName] = [];
+                acc[item.zoneName].push(item);
+                return acc;
+            }, {});
+            
+            let totalRevenue = 0;
+            let totalCosts = 0;
+            let totalProfit = 0;
+            
+            Object.entries(groupedByZone).forEach(([zoneName, services]) => {
+                html += `<div class="detail-section">`;
+                html += `<h4>${zoneName}</h4>`;
+                
+                services.forEach(service => {
+                    const marginClass = service.marginPercent < 0 ? 'margin-critical' :
+                                       service.marginPercent < 20 ? 'margin-danger' :
+                                       service.marginPercent < 30 ? 'margin-warning' : 'margin-good';
+                    
+                    html += `<div style="margin: 10px 0; padding: 12px; background: white; border-radius: 4px; border-left: 4px solid ${
+                        service.marginPercent < 0 ? '#8B0000' :
+                        service.marginPercent < 20 ? '#D3222A' :
+                        service.marginPercent < 30 ? '#FFA500' : '#228B22'
+                    };">`;
+                    
+                    html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">`;
+                    html += `<div style="font-weight: 600; color: #002B45;">${service.serviceName}</div>`;
+                    html += `<div class="margin-status ${marginClass}">${service.marginPercent.toFixed(1)}% Margin</div>`;
+                    html += `</div>`;
+                    
+                    html += `<div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; font-size: 12px;">`;
+                    html += `<div><strong>Revenue:</strong><br>${service.revenue.toFixed(2)}</div>`;
+                    html += `<div><strong>Material:</strong><br>${service.materialCost.toFixed(2)}</div>`;
+                    html += `<div><strong>Labor:</strong><br>${service.laborCost.toFixed(2)}</div>`;
+                    html += `<div><strong>Profit:</strong><br>${service.profit.toFixed(2)}</div>`;
+                    html += `</div>`;
+                    
+                    html += `</div>`;
+                    
+                    totalRevenue += service.revenue;
+                    totalCosts += service.totalCost;
+                    totalProfit += service.profit;
+                });
+                
+                html += `</div>`;
+            });
+            
+            const overallMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+            const overallMarginClass = overallMargin < 0 ? 'margin-critical' :
+                                      overallMargin < 20 ? 'margin-danger' :
+                                      overallMargin < 30 ? 'margin-warning' : 'margin-good';
+            
+            html += `<div class="detail-section" style="background: #002B45; color: white;">`;
+            html += `<h4 style="color: white;">Project Margin Summary</h4>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3);">`;
+            html += `<span>Total Revenue:</span><span>${totalRevenue.toFixed(2)}</span>`;
+            html += `</div>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3);">`;
+            html += `<span>Total Costs:</span><span>${totalCosts.toFixed(2)}</span>`;
+            html += `</div>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3);">`;
+            html += `<span>Total Profit:</span><span>${totalProfit.toFixed(2)}</span>`;
+            html += `</div>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3); border-bottom: none;">`;
+            html += `<span>Overall Margin:</span><span class="margin-status ${overallMarginClass}" style="padding: 4px 8px; border-radius: 4px; font-size: 12px;">${overallMargin.toFixed(1)}%</span>`;
+            html += `</div>`;
+            html += `</div>`;
+            
+            container.innerHTML = html;
+        }
+
+        function generateShoppingContent(shoppingList) {
+            const container = document.getElementById('shopping-details');
+            
+            let html = '<h3 style="color: #002B45; margin-bottom: 20px;">Complete Sherwin Williams Shopping List</h3>';
+            
+            let grandTotal = 0;
+            let itemCount = 0;
+            
+            html += `<div class="detail-section">`;
+            html += `<h4>Materials to Order</h4>`;
+            
+            const sortedItems = Array.from(shoppingList.entries()).sort((a, b) => a[1].product.localeCompare(b[1].product));
+            
+            sortedItems.forEach(([key, item]) => {
+                html += `<div class="kit-requirement" style="margin-bottom: 15px;">`;
+                html += `<div class="product-name" style="font-size: 16px;">${item.product}</div>`;
+                html += `<div class="purchase-info" style="font-size: 14px; margin: 5px 0;">`;
+                html += `<strong>Order: ${item.totalKits} kits @ ${item.costPerKit.toFixed(2)}/kit = ${item.totalCost.toFixed(2)}</strong>`;
+                html += `</div>`;
+                html += `<div style="font-size: 12px; color: #666;">`;
+                html += `Used in zones: ${Array.from(item.zones).join(', ')}`;
+                html += `</div>`;
+                html += `</div>`;
+                
+                grandTotal += item.totalCost;
+                itemCount += item.totalKits;
+            });
+            
+            html += `</div>`;
+            
+            html += `<div class="detail-section" style="background: #002B45; color: white;">`;
+            html += `<h4 style="color: white;">Order Summary</h4>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3);">`;
+            html += `<span>Total Items:</span><span>${sortedItems.length} products</span>`;
+            html += `</div>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3);">`;
+            html += `<span>Total Kits:</span><span>${itemCount} kits</span>`;
+            html += `</div>`;
+            html += `<div class="detail-row" style="border-color: rgba(255,255,255,0.3); border-bottom: none;">`;
+            html += `<span>Total Material Cost:</span><span style="font-size: 18px; font-weight: 700;">${grandTotal.toFixed(2)}</span>`;
+            html += `</div>`;
+            html += `</div>`;
+            
+            html += `<div class="detail-section" style="background: #f8f9fa; border: 2px dashed #002B45;">`;
+            html += `<h4 style="color: #002B45; text-align: center; margin-bottom: 15px;">📋 Ready to Order</h4>`;
+            html += `<div style="text-align: center; color: #666; font-size: 14px; line-height: 1.6;">`;
+            html += `This shopping list shows exactly what to purchase from Sherwin Williams.<br>`;
+            html += `All quantities include waste factor and are rounded up to complete kits.<br>`;
+            html += `<strong>Total investment in materials: ${grandTotal.toFixed(2)}</strong>`;
+            html += `</div>`;
+            html += `</div>`;
+            
+            container.innerHTML = html;
+        }
+
         function loadDemo() {
             document.getElementById('customer-name').value = 'ABC Manufacturing';
             document.getElementById('project-name').value = 'Production Floor Renovation';
@@ -1314,7 +1977,7 @@
                             quantity: 5000, unit: 'sqft', price: 6.50,
                             system: systems['resuflor-3746-regular'],
                             costs: calculateSystemCosts(systems['resuflor-3746-regular'], 5000, 15),
-                            laborHours: (8 / 1000) * 5000
+                            laborHours: calculateAccurateLaborHours('solid-epoxy', 5000, 'sqft')
                         }
                     ]
                 },
@@ -1329,7 +1992,7 @@
                             quantity: 8000, unit: 'sqft', price: 5.00,
                             system: systems['resuflor-grind-seal'],
                             costs: calculateSystemCosts(systems['resuflor-grind-seal'], 8000, 15),
-                            laborHours: (6 / 1000) * 8000
+                            laborHours: calculateAccurateLaborHours('polish-seal', 8000, 'sqft')
                         }
                     ]
                 }
@@ -1367,8 +2030,16 @@
                 }
             });
             
-            console.log('Mountaineer Platform Ready - Product-Based Quoting System');
+            // Internal details tab switching
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('internal-tab')) {
+                    switchInternalTab(e.target.dataset.tab);
+                }
+            });
+            
+            console.log('Mountaineer Platform Ready - Complete with Internal Details');
         });
     </script>
 </body>
 </html>
+                

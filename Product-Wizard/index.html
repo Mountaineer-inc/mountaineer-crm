@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountaineer Internal System Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #002B45 0%, #1a4a66 50%, #2d5a7a 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .header {
+            background: rgba(0, 43, 69, 0.95);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .tagline {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #C41E3A 0%, #A01729 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .selector-section {
+            padding: 25px;
+        }
+
+        .step-container {
+            display: none;
+        }
+
+        .step-container.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 12px;
+        }
+
+        .step-number {
+            background: #C41E3A;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #002B45;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-card {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: #C41E3A;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 30, 58, 0.15);
+        }
+
+        .option-card.selected {
+            border-color: #C41E3A;
+            background: linear-gradient(135deg, #fbeef0 0%, #f8e6e9 100%);
+            box-shadow: 0 6px 20px rgba(196, 30, 58, 0.2);
+        }
+
+        .option-icon {
+            margin-bottom: 8px;
+            display: block;
+            text-align: center;
+        }
+
+        .option-icon img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .option-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #002B45;
+            margin-bottom: 6px;
+        }
+
+        .option-description {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .project-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: #002B45;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #C41E3A;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #C41E3A 0%, #A01729 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #002B45 0%, #1a4a66 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .results-header h2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .results-content {
+            padding: 25px;
+        }
+
+        .top-recommendations {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #002B45;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .system-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .system-card:hover {
+            border-color: #C41E3A;
+            background: #fbeef0;
+        }
+
+        .system-card.expanded {
+            border-color: #C41E3A;
+            background: linear-gradient(135deg, #fbeef0 0%, #f8e6e9 100%);
+        }
+
+        .system-card.top-choice {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+        }
+
+        .system-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .system-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #002B45;
+        }
+
+        .system-name img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .system-badge {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .badge-top { background: #28a745; }
+        .badge-alt { background: #6c757d; }
+
+        .system-quick-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .quick-info-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #002B45;
+        }
+
+        .system-details {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .system-details.visible {
+            display: block;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .detail-section-title {
+            font-weight: 600;
+            color: #002B45;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-section-title img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .kit-calculation {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .kit-calc-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kit-calc-title img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .kit-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .kit-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .kit-item-name {
+            font-weight: 600;
+            color: #155724;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .kit-item-calc {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .kit-item-result {
+            font-weight: 600;
+            color: #002B45;
+            font-size: 0.95rem;
+        }
+
+        .total-cost {
+            background: #C41E3A;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .cost-label {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .cost-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #C41E3A;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .expand-btn:hover {
+            text-decoration: underline;
+        }
+
+        .restart-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #C41E3A;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+        }
+
+        .restart-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 4px;
+            border-radius: 2px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #28a745, #20c997);
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .project-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .system-quick-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .kit-breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <div class="logo">
+                    <img src="https://mountaineerinc.com/wp-content/uploads/2025/06/Mountaineer-Logo-WIDE.png" alt="Mountaineer Logo" />
+                </div>
+                <div class="tagline">Internal System Selector & Quoting Tool</div>
+            </div>
+            <div style="text-align: right; font-size: 0.8rem; opacity: 0.9;">
+                <div>Sherwin Williams Systems</div>
+                <div>30% Contractor Discount</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-card">
+            <div class="card-header">
+                <h1>System Selection & Quoting</h1>
+                <p>Find the right system and calculate exact material needs</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="selector-section">
+                <!-- Step 1: Project Details -->
+                <div class="step-container active" id="step1">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Project Details</div>
+                    </div>
+                    
+                    <div class="project-inputs">
+                        <div class="input-group">
+                            <label class="input-label">Square Footage</label>
+                            <input type="number" class="input-field" id="squareFootage" placeholder="Enter sq ft" min="1">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Waste Factor</label>
+                            <select class="input-field" id="wasteFactor">
+                                <option value="0">None (0%)</option>
+                                <option value="5">Simple (5%)</option>
+                                <option value="15" selected>Standard (15%)</option>
+                                <option value="25">Complex (25%)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="step-header" style="margin-bottom: 20px;">
+                        <div class="step-title" style="font-size: 1.1rem;">Timeline Requirement</div>
+                    </div>
+                    
+                    <div class="options-grid">
+                        <div class="option-card" data-value="emergency" data-step="timeline">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/26A1.svg" alt="Emergency" />
+                            </div>
+                            <div class="option-title">Emergency</div>
+                            <div class="option-description">1-2 hour return to service needed</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="same-day" data-step="timeline">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/E0AB.svg" alt="Same Day" />
+                            </div>
+                            <div class="option-title">Same Day</div>
+                            <div class="option-description">2-8 hour cure time acceptable</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="fast" data-step="timeline">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F680.svg" alt="Fast Track" />
+                            </div>
+                            <div class="option-title">Fast Track</div>
+                            <div class="option-description">24-48 hours acceptable</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="standard" data-step="timeline">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/2714.svg" alt="Standard" />
+                            </div>
+                            <div class="option-title">Standard</div>
+                            <div class="option-description">48+ hours, optimize cost</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Environment -->
+                <div class="step-container" id="step2">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Primary Environment</div>
+                    </div>
+                    
+                    <div class="options-grid">
+                        <div class="option-card" data-value="food-beverage" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F35D.svg" alt="Food & Beverage" />
+                            </div>
+                            <div class="option-title">Food & Beverage</div>
+                            <div class="option-description">USDA compliance, easy cleaning required</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="pharmaceutical" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F48A.svg" alt="Pharmaceutical" />
+                            </div>
+                            <div class="option-title">Pharmaceutical</div>
+                            <div class="option-description">Clean room, contamination control</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="electronics" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/E1D7.svg" alt="Electronics/ESD" />
+                            </div>
+                            <div class="option-title">Electronics/ESD</div>
+                            <div class="option-description">Static control required</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="heavy-chemical" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/2697.svg" alt="Heavy Chemical" />
+                            </div>
+                            <div class="option-title">Heavy Chemical</div>
+                            <div class="option-description">Aggressive chemical exposure</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="thermal-shock" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F321.svg" alt="Thermal Shock" />
+                            </div>
+                            <div class="option-title">Thermal Shock</div>
+                            <div class="option-description">Extreme temperature variations</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="exterior" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F324.svg" alt="Exterior" />
+                            </div>
+                            <div class="option-title">Exterior</div>
+                            <div class="option-description">UV/weather resistance needed</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="comfort" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/color/svg/E247.svg" alt="Comfort/Safety" />
+                            </div>
+                            <div class="option-title">Comfort/Safety</div>
+                            <div class="option-description">Anti-fatigue, cushioned surface</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="general" data-step="environment">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F3EC.svg" alt="General Commercial" />
+                            </div>
+                            <div class="option-title">General Commercial</div>
+                            <div class="option-description">Standard industrial application</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Performance -->
+                <div class="step-container" id="step3">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Priority Requirement</div>
+                    </div>
+                    
+                    <div class="options-grid">
+                        <div class="option-card" data-value="decorative" data-step="performance">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F48E.svg" alt="Decorative Appeal" />
+                            </div>
+                            <div class="option-title">Decorative Appeal</div>
+                            <div class="option-description">Flake/quartz broadcast, showroom quality</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="maximum-durability" data-step="performance">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F4AA.svg" alt="Maximum Durability" />
+                            </div>
+                            <div class="option-title">Maximum Durability</div>
+                            <div class="option-description">Longest service life, heavy traffic</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="heavy-industrial" data-step="performance">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F527.svg" alt="Heavy Industrial" />
+                            </div>
+                            <div class="option-title">Heavy Industrial</div>
+                            <div class="option-description">Mortar systems, machinery pads</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="budget" data-step="performance">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F4C8.svg" alt="Budget Conscious" />
+                            </div>
+                            <div class="option-title">Budget Conscious</div>
+                            <div class="option-description">Best performance per dollar</div>
+                        </div>
+                        
+                        <div class="option-card" data-value="low-odor" data-step="performance">
+                            <div class="option-icon">
+                                <img src="https://openmoji.org/data/black/svg/1F33F.svg" alt="Low Odor" />
+                            </div>
+                            <div class="option-title">Low Odor</div>
+                            <div class="option-description">Water-based, occupied spaces</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" id="backBtn" onclick="previousStep()" style="display: none;">
+                        ← Back
+                    </button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()" disabled>
+                        Next →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container" id="resultsContainer" style="display: none;">
+            <div class="results-header">
+                <h2>System Recommendations</h2>
+                <p id="projectSummary">Based on project requirements</p>
+            </div>
+            <div class="results-content" id="resultsContent">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <button class="restart-btn" onclick="restartSelector()" style="display: none;" id="restartBtn">
+        <img src="https://openmoji.org/data/black/svg/1F504.svg" alt="Restart" />
+        New Quote
+    </button>
+
+    <script>
+        let currentStep = 1;
+        let selections = {};
+        let projectData = {};
+        const totalSteps = 3;
+
+        // Comprehensive system database with standardized coverage rates
+        const systemDatabase = {
+            // Emergency MMA Systems (1-2 hours)
+            'crylaflor-gard-sl': {
+                name: 'Crylaflor MMA Gard SL',
+                family: 'MMA',
+                icon: 'https://openmoji.org/data/color/svg/1F534.svg',
+                netCost: 8.60,
+                coverage: 120, // sf per system
+                kitCost: 1032,
+                layers: 'Primer (500sf) → Slurry (120sf) → Topcoat (500sf)',
+                potLife: '8-15 minutes',
+                cureTime: '1-2 hours',
+                returnService: '1-2 hours',
+                thickness: '1/8" self-leveling',
+                tempRange: '32-120°F',
+                chemicalResistance: 'Excellent',
+                applications: ['Emergency repairs', 'Freezer areas', 'Industrial'],
+                components: [
+                    { name: 'P-101 Primer', coverage: 500, cost: 385 },
+                    { name: 'Gard SL System', coverage: 120, cost: 647 }
+                ]
+            },
+            'crylaflor-deco-flake': {
+                name: 'Crylaflor MMA Deco Flake',
+                family: 'MMA',
+                icon: 'https://openmoji.org/data/color/svg/1F534.svg',
+                netCost: 6.93,
+                coverage: 200,
+                kitCost: 1386,
+                layers: 'Primer → Base → Flake → Topcoat',
+                potLife: '8-15 minutes',
+                cureTime: '1-2 hours',
+                returnService: '1-2 hours',
+                thickness: '10-12 mils + flake',
+                tempRange: '32-120°F',
+                chemicalResistance: 'Excellent',
+                applications: ['Emergency decorative', 'Cold weather', 'Fast turnaround'],
+                components: [
+                    { name: 'P-101 Primer', coverage: 500, cost: 385 },
+                    { name: 'Deco System Kit', coverage: 200, cost: 1001 }
+                ]
+            },
+
+            // Same Day Polyaspartic Systems (2-8 hours)
+            'accelera-5-solid': {
+                name: 'Accelera 5 Solid Color',
+                family: 'Polyaspartic',
+                icon: 'https://openmoji.org/data/color/svg/1F7E0.svg',
+                netCost: 5.20,
+                coverage: 65,
+                kitCost: 338,
+                layers: 'Primer (115sf) → Topcoat (65sf)',
+                potLife: '15-30 minutes',
+                cureTime: '2-6 hours',
+                returnService: '4-6 hours',
+                thickness: '8-10 mils',
+                tempRange: '55-95°F',
+                chemicalResistance: 'Good',
+                applications: ['Fast commercial', 'Retail', 'Light industrial'],
+                components: [
+                    { name: 'Accelera 5 Large Kit', coverage: 65, cost: 241.50 },
+                    { name: 'Primer (if needed)', coverage: 115, cost: 96.50 }
+                ]
+            },
+            'accelera-deco-flake-sb': {
+                name: 'Accelera Deco Flake SB',
+                family: 'Polyaspartic',
+                icon: 'https://openmoji.org/data/color/svg/1F7E0.svg',
+                netCost: 6.43,
+                coverage: 450,
+                kitCost: 2894,
+                layers: 'Primer → Base → Flake → Grout → Topcoat',
+                potLife: '15-30 minutes',
+                cureTime: '2-6 hours',
+                returnService: '4-6 hours',
+                thickness: '12-15 mils total',
+                tempRange: '55-95°F',
+                chemicalResistance: 'Good',
+                applications: ['Decorative commercial', 'Showrooms', 'Fast decorative'],
+                components: [
+                    { name: '4850 System Kit', coverage: 450, cost: 2334 },
+                    { name: 'Deco Flake (40lb)', coverage: 267, cost: 140 },
+                    { name: 'Colorants', coverage: 999, cost: 420 }
+                ]
+            },
+
+            // Fast Track Systems (24-48 hours)
+            'poly-crete-hf-quarter': {
+                name: 'Poly-Crete HF 1/4"',
+                family: 'Urethane Cement',
+                icon: 'https://openmoji.org/data/color/svg/1F7E2.svg',
+                netCost: 7.50,
+                coverage: 18,
+                kitCost: 135,
+                layers: 'Primer → 1/4" Mortar Build',
+                potLife: '20-30 minutes',
+                cureTime: '4-8 hours',
+                returnService: '8-24 hours',
+                thickness: '1/4" (250 mils)',
+                tempRange: '40-90°F',
+                chemicalResistance: 'Excellent',
+                applications: ['Heavy machinery', 'Forklift areas', 'Industrial'],
+                components: [
+                    { name: 'Poly-Crete HF Kit', coverage: 18, cost: 135 }
+                ]
+            },
+            'resuflor-3746-fast': {
+                name: 'Resuflor 3746 Fast Cure',
+                family: 'Epoxy',
+                icon: 'https://openmoji.org/data/color/svg/1F535.svg',
+                netCost: 1.83,
+                coverage: 428,
+                kitCost: 261.10,
+                layers: 'Primer → 3746 Fast Base → Topcoat',
+                potLife: '20-30 minutes',
+                cureTime: '16-24 hours',
+                returnService: '24 hours',
+                thickness: '10-12 mils',
+                tempRange: '55-95°F',
+                chemicalResistance: 'Excellent',
+                applications: ['Chemical resistance', 'Industrial', 'Fast schedule'],
+                components: [
+                    { name: '3746 Fast Kit (3 gal)', coverage: 428, cost: 261.10 }
+                ]
+            },
+
+            // Standard Timeline Systems (48+ hours)
+            'resuflor-3746-regular': {
+                name: 'Resuflor 3746 Regular',
+                family: 'Epoxy',
+                icon: 'https://openmoji.org/data/color/svg/1F535.svg',
+                netCost: 1.54,
+                coverage: 347,
+                kitCost: 252.00,
+                layers: 'Primer → 3746 Base → Topcoat',
+                potLife: '45-60 minutes',
+                cureTime: '24+ hours',
+                returnService: '24-48 hours',
+                thickness: '10-12 mils',
+                tempRange: '55-95°F',
+                chemicalResistance: 'Excellent',
+                applications: ['Chemical resistance', 'Industrial workhorse', 'Heavy traffic'],
+                components: [
+                    { name: '3746 Regular Kit (3 gal)', coverage: 347, cost: 252.00 }
+                ]
+            },
+            'resuflor-deco-flake-bc': {
+                name: 'Resuflor Deco Flake BC',
+                family: 'Epoxy',
+                icon: 'https://openmoji.org/data/color/svg/1F535.svg',
+                netCost: 2.89,
+                coverage: 300,
+                kitCost: 867,
+                layers: 'Primer → Base → Flake → Topcoat',
+                potLife: '45-60 minutes',
+                cureTime: '24+ hours',
+                returnService: '48 hours',
+                thickness: '12-15 mils total',
+                tempRange: '55-95°F',
+                chemicalResistance: 'Excellent',
+                applications: ['Decorative industrial', 'Commercial', 'Standard decorative'],
+                components: [
+                    { name: 'MPE Base Kit', coverage: 450, cost: 350 },
+                    { name: 'Topcoat Kit', coverage: 750, cost: 380 },
+                    { name: 'Deco Flake (40lb)', coverage: 267, cost: 140 }
+                ]
+            },
+            'aqua-water-based': {
+                name: 'Aqua Water-Based Epoxy',
+                family: 'Water-Based',
+                icon: 'https://openmoji.org/data/color/svg/1F7E6.svg',
+                netCost: 2.85,
+                coverage: 225,
+                kitCost: 641,
+                layers: 'Primer → WB Base → WB Topcoat',
+                potLife: '60+ minutes',
+                cureTime: '24+ hours',
+                returnService: '48 hours',
+                thickness: '8-10 mils',
+                tempRange: '55-85°F',
+                chemicalResistance: 'Good',
+                applications: ['Low odor', 'Occupied spaces', 'Environmental'],
+                components: [
+                    { name: 'Aqua 3460 Base', coverage: 225, cost: 295 },
+                    { name: 'Aqua 3461 Topcoat', coverage: 200, cost: 346 }
+                ]
+            },
+            'resuprime-gpe-budget': {
+                name: 'Resuprime GPE Budget',
+                family: 'Epoxy',
+                icon: 'https://openmoji.org/data/color/svg/1F7EB.svg',
+                netCost: 1.85,
+                coverage: 250,
+                kitCost: 462,
+                layers: 'Primer → GPE Base → Seal Coat',
+                potLife: '60+ minutes',
+                cureTime: '24+ hours',
+                returnService: '48 hours',
+                thickness: '6-8 mils',
+                tempRange: '55-95°F',
+                chemicalResistance: 'Good',
+                applications: ['Budget industrial', 'Light commercial', 'Warehouse'],
+                components: [
+                    { name: 'GPE Resin (1 gal)', coverage: 300, cost: 58.10 },
+                    { name: 'GPE Hardener (1 gal)', coverage: 300, cost: 83.30 },
+                    { name: 'Primer', coverage: 400, cost: 320 }
+                ]
+            },
+
+            // Specialty Systems
+            'fastop-multi-food': {
+                name: 'FasTop Multi Food Grade',
+                family: 'Urethane Cement',
+                icon: 'https://openmoji.org/data/color/svg/1F7E2.svg',
+                netCost: 12.50,
+                coverage: 25,
+                kitCost: 'Call for Quote',
+                layers: 'Primer → Slurry → Membrane → Topcoat',
+                potLife: '25-35 minutes',
+                cureTime: '4-8 hours',
+                returnService: '8-24 hours',
+                thickness: '1/8" - 1/4"',
+                tempRange: '40-90°F',
+                chemicalResistance: 'Excellent',
+                applications: ['USDA areas', 'Food processing', 'Thermal shock'],
+                components: [
+                    { name: 'FasTop Multi System', coverage: 25, cost: 'CfQ' }
+                ]
+            },
+            'softop-comfort': {
+                name: 'SofTop Comfort Cushioned',
+                family: 'Cushioned',
+                icon: 'https://openmoji.org/data/color/svg/E247.svg',
+                netCost: 13.71,
+                coverage: 30,
+                kitCost: 'Call for Quote',
+                layers: 'Primer → Broadcast → Membrane → Grout → Topcoat',
+                potLife: '30-45 minutes',
+                cureTime: '24+ hours',
+                returnService: '48-72 hours',
+                thickness: '1/4" cushioned',
+                tempRange: '55-85°F',
+                chemicalResistance: 'Good',
+                applications: ['Anti-fatigue', 'Safety areas', 'Worker comfort'],
+                components: [
+                    { name: 'SofTop System Kit', coverage: 30, cost: 'CfQ' }
+                ]
+            }
+        };
+
+        // System recommendation logic
+        function getSystemRecommendations() {
+            const { timeline, environment, performance } = selections;
+            const allSystems = Object.values(systemDatabase);
+            
+            // Filter and score systems
+            let filteredSystems = allSystems.filter(system => {
+                // Timeline filtering
+                if (timeline === 'emergency' && !system.name.toLowerCase().includes('crylaflor')) return false;
+                if (timeline === 'same-day' && system.family !== 'Polyaspartic' && !system.name.toLowerCase().includes('crylaflor')) return false;
+                
+                // Environment filtering
+                if (environment === 'food-beverage' && !system.applications.some(app => app.toLowerCase().includes('food') || app.toLowerCase().includes('usda'))) {
+                    if (!system.name.toLowerCase().includes('fastop')) return false;
+                }
+                
+                return true;
+            });
+
+            // Score and sort systems
+            filteredSystems = filteredSystems.map(system => ({
+                ...system,
+                score: calculateSystemScore(system, { timeline, environment, performance })
+            })).sort((a, b) => b.score - a.score);
+
+            return filteredSystems;
+        }
+
+        function calculateSystemScore(system, requirements) {
+            let score = 100;
+            
+            // Timeline matching
+            if (requirements.timeline === 'emergency' && system.family === 'MMA') score += 50;
+            else if (requirements.timeline === 'same-day' && system.family === 'Polyaspartic') score += 40;
+            else if (requirements.timeline === 'fast' && (system.family === 'Epoxy' || system.family === 'Urethane Cement')) score += 30;
+            else if (requirements.timeline === 'standard') score += 20;
+            
+            // Environment matching
+            if (requirements.environment === 'food-beverage' && system.applications.some(app => app.toLowerCase().includes('food'))) score += 40;
+            if (requirements.environment === 'heavy-chemical' && system.chemicalResistance === 'Excellent') score += 35;
+            if (requirements.environment === 'decorative' && system.applications.some(app => app.toLowerCase().includes('decorative'))) score += 30;
+            
+            // Performance matching
+            if (requirements.performance === 'budget' && system.netCost < 3) score += 30;
+            if (requirements.performance === 'maximum-durability' && system.chemicalResistance === 'Excellent') score += 30;
+            if (requirements.performance === 'decorative' && system.name.toLowerCase().includes('deco')) score += 35;
+            
+            // Cost efficiency bonus
+            if (system.netCost < 5) score += 10;
+            
+            return score;
+        }
+
+        function calculateMaterials(system, squareFootage, wasteFactor) {
+            const adjustedSqft = squareFootage * (1 + wasteFactor / 100);
+            const calculations = {
+                adjustedSqft: adjustedSqft,
+                components: [],
+                totalCost: 0
+            };
+
+            if (system.components && system.components.length > 0) {
+                // Multi-component calculation
+                system.components.forEach(component => {
+                    const needed = adjustedSqft / component.coverage;
+                    const recommended = Math.ceil(needed);
+                    const cost = typeof component.cost === 'number' ? recommended * component.cost : 'Call for Quote';
+                    
+                    calculations.components.push({
+                        name: component.name,
+                        needed: needed.toFixed(2),
+                        recommended: recommended,
+                        unitCost: component.cost,
+                        totalCost: cost
+                    });
+                    
+                    if (typeof cost === 'number') {
+                        calculations.totalCost += cost;
+                    }
+                });
+            } else {
+                // Single kit calculation
+                const kitsNeeded = adjustedSqft / system.coverage;
+                const kitsRecommended = Math.ceil(kitsNeeded);
+                const totalCost = typeof system.kitCost === 'number' ? kitsRecommended * system.kitCost : 'Call for Quote';
+                
+                calculations.components.push({
+                    name: `${system.name} Kits`,
+                    needed: kitsNeeded.toFixed(2),
+                    recommended: kitsRecommended,
+                    unitCost: system.kitCost,
+                    totalCost: totalCost
+                });
+                
+                if (typeof totalCost === 'number') {
+                    calculations.totalCost = totalCost;
+                }
+            }
+
+            return calculations;
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        function selectOption(element) {
+            const step = element.dataset.step;
+            const value = element.dataset.value;
+            
+            // Remove previous selection
+            document.querySelectorAll(`[data-step="${step}"]`).forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked element
+            element.classList.add('selected');
+            
+            // Store selection
+            selections[step] = value;
+            
+            // Enable next button
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function validateInputs() {
+            const sqft = document.getElementById('squareFootage').value;
+            return sqft && parseFloat(sqft) > 0;
+        }
+
+        function nextStep() {
+            // Validate current step
+            if (currentStep === 1) {
+                if (!validateInputs()) {
+                    alert('Please enter a valid square footage.');
+                    return;
+                }
+                projectData.squareFootage = parseFloat(document.getElementById('squareFootage').value);
+                projectData.wasteFactor = parseFloat(document.getElementById('wasteFactor').value);
+            }
+            
+            if (currentStep < totalSteps) {
+                // Hide current step
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                
+                // Show next step
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                
+                // Update navigation
+                document.getElementById('backBtn').style.display = 'block';
+                document.getElementById('nextBtn').disabled = true;
+                
+                if (currentStep === totalSteps) {
+                    document.getElementById('nextBtn').textContent = 'Generate Recommendations →';
+                }
+            } else {
+                // Show results
+                showResults();
+            }
+            
+            updateProgress();
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                // Hide current step
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                
+                // Show previous step
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                
+                // Update navigation
+                if (currentStep === 1) {
+                    document.getElementById('backBtn').style.display = 'none';
+                }
+                
+                // Re-enable next button if selection exists
+                const currentStepName = ['', 'timeline', 'environment', 'performance'][currentStep];
+                if (currentStep === 1 || selections[currentStepName]) {
+                    document.getElementById('nextBtn').disabled = false;
+                    document.getElementById('nextBtn').textContent = currentStep === totalSteps ? 'Generate Recommendations →' : 'Next →';
+                }
+            }
+            
+            updateProgress();
+        }
+
+        function showResults() {
+            // Hide selector
+            document.querySelector('.main-card').style.display = 'none';
+            
+            // Get recommendations
+            const systems = getSystemRecommendations();
+            const topThree = systems.slice(0, 3);
+            const alternatives = systems.slice(3, 8);
+            
+            // Update project summary
+            const summaryText = `${projectData.squareFootage.toLocaleString()} sq ft • ${projectData.wasteFactor}% waste factor • ${getTimelineText(selections.timeline)}`;
+            document.getElementById('projectSummary').textContent = summaryText;
+            
+            // Generate results HTML
+            document.getElementById('resultsContent').innerHTML = generateResultsHTML(topThree, alternatives);
+            
+            // Show results
+            document.getElementById('resultsContainer').style.display = 'block';
+            document.getElementById('restartBtn').style.display = 'flex';
+            
+            // Scroll to results
+            document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateResultsHTML(topThree, alternatives) {
+            let html = `
+                <div class="top-recommendations">
+                    <div class="section-title">
+                        <img src="https://openmoji.org/data/black/svg/1F3C5.svg" alt="Top Recommendations" />
+                        <span>Top 3 Recommendations</span>
+                    </div>
+                    ${topThree.map((system, index) => generateSystemCard(system, index, true)).join('')}
+                </div>
+            `;
+            
+            if (alternatives.length > 0) {
+                html += `
+                    <div class="alternatives-section">
+                        <div class="section-title">
+                            <img src="https://openmoji.org/data/black/svg/1F4CB.svg" alt="Alternatives" />
+                            <span>Alternative Options</span>
+                        </div>
+                        ${alternatives.map((system, index) => generateSystemCard(system, index + 3, false)).join('')}
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+
+        function generateSystemCard(system, index, isTopChoice) {
+            const materials = calculateMaterials(system, projectData.squareFootage, projectData.wasteFactor);
+            const cardId = `system-${index}`;
+            
+            return `
+                <div class="system-card ${isTopChoice ? 'top-choice' : ''}" id="${cardId}" onclick="toggleSystemDetails('${cardId}')">
+                    <div class="system-header">
+                        <div class="system-name">
+                            <img src="${system.icon}" alt="${system.family}" />
+                            <span>${system.name}</span>
+                            <span class="system-badge ${isTopChoice ? 'badge-top' : 'badge-alt'}">
+                                ${isTopChoice ? (index === 0 ? 'TOP CHOICE' : `#${index + 1}`) : 'ALTERNATIVE'}
+                            </span>
+                        </div>
+                        <button class="expand-btn" id="expand-${cardId}">
+                            <span>View Details</span>
+                            <span>▼</span>
+                        </button>
+                    </div>
+                    
+                    <div class="system-quick-info">
+                        <div class="quick-info-item">
+                            <div class="info-label">Cost/SF</div>
+                            <div class="info-value">${system.netCost}</div>
+                        </div>
+                        <div class="quick-info-item">
+                            <div class="info-label">Return Time</div>
+                            <div class="info-value">${system.returnService}</div>
+                        </div>
+                        <div class="quick-info-item">
+                            <div class="info-label">Family</div>
+                            <div class="info-value">${system.family}</div>
+                        </div>
+                        <div class="quick-info-item">
+                            <div class="info-label">Chemical Resist</div>
+                            <div class="info-value">${system.chemicalResistance}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="system-details" id="details-${cardId}">
+                        ${generateSystemDetails(system, materials)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateSystemDetails(system, materials) {
+            const totalCostDisplay = typeof materials.totalCost === 'number' 
+                ? `${materials.totalCost.toLocaleString()}` 
+                : 'Call for Quote';
+                
+            const costPerSfDisplay = typeof materials.totalCost === 'number'
+                ? `${(materials.totalCost / projectData.squareFootage).toFixed(2)}/sf`
+                : 'CfQ';
+
+            return `
+                <div class="detail-grid">
+                    <div class="detail-section">
+                        <div class="detail-section-title">
+                            <img src="https://openmoji.org/data/black/svg/E259.svg" alt="Technical Specs" />
+                            Technical Specifications
+                        </div>
+                        <div><strong>Layers:</strong> ${system.layers}</div>
+                        <div><strong>Pot Life:</strong> ${system.potLife}</div>
+                        <div><strong>Cure Time:</strong> ${system.cureTime}</div>
+                        <div><strong>Thickness:</strong> ${system.thickness}</div>
+                        <div><strong>Temperature:</strong> ${system.tempRange}</div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-section-title">
+                            <img src="https://openmoji.org/data/black/svg/1F3AF.svg" alt="Applications" />
+                            Applications
+                        </div>
+                        ${system.applications.map(app => `<div>• ${app}</div>`).join('')}
+                    </div>
+                </div>
+                
+                <div class="kit-calculation">
+                    <div class="kit-calc-title">
+                        <img src="https://openmoji.org/data/black/svg/1F4E6.svg" alt="Material Calculation" />
+                        <span>Material Calculation</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; font-size: 0.9rem; color: #155724;">
+                        <strong>Project:</strong> ${projectData.squareFootage.toLocaleString()} sq ft + ${projectData.wasteFactor}% waste = ${materials.adjustedSqft.toFixed(0)} sq ft total
+                    </div>
+                    
+                    <div class="kit-breakdown">
+                        ${materials.components.map(comp => `
+                            <div class="kit-item">
+                                <div class="kit-item-name">${comp.name}</div>
+                                <div class="kit-item-calc">${comp.needed} needed → Order ${comp.recommended}</div>
+                                <div class="kit-item-result">
+                                    ${typeof comp.totalCost === 'number' ? `${comp.totalCost.toLocaleString()}` : comp.totalCost}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="total-cost">
+                        <div class="cost-label">Total Material Cost</div>
+                        <div class="cost-value">${totalCostDisplay}</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px;">${costPerSfDisplay} actual cost</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSystemDetails(cardId) {
+            const details = document.getElementById(`details-${cardId}`);
+            const expandBtn = document.getElementById(`expand-${cardId}`);
+            const card = document.getElementById(cardId);
+            
+            if (details.classList.contains('visible')) {
+                details.classList.remove('visible');
+                expandBtn.innerHTML = '<span>View Details</span><span>▼</span>';
+                card.classList.remove('expanded');
+            } else {
+                // Close all other details first
+                document.querySelectorAll('.system-details.visible').forEach(detail => {
+                    detail.classList.remove('visible');
+                });
+                document.querySelectorAll('.system-card.expanded').forEach(c => {
+                    c.classList.remove('expanded');
+                });
+                document.querySelectorAll('.expand-btn').forEach(btn => {
+                    btn.innerHTML = '<span>View Details</span><span>▼</span>';
+                });
+                
+                // Open this one
+                details.classList.add('visible');
+                expandBtn.innerHTML = '<span>Hide Details</span><span>▲</span>';
+                card.classList.add('expanded');
+            }
+        }
+
+        function getTimelineText(timeline) {
+            const timelineMap = {
+                'emergency': 'Emergency Repair',
+                'same-day': 'Same Day Return',
+                'fast': 'Fast Track',
+                'standard': 'Standard Timeline'
+            };
+            return timelineMap[timeline] || timeline;
+        }
+
+        function restartSelector() {
+            // Reset state
+            currentStep = 1;
+            selections = {};
+            projectData = {};
+            
+            // Hide results and show selector
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.querySelector('.main-card').style.display = 'block';
+            document.getElementById('restartBtn').style.display = 'none';
+            
+            // Reset to step 1
+            document.querySelectorAll('.step-container').forEach(step => step.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+            
+            // Clear all selections and inputs
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+            document.getElementById('squareFootage').value = '';
+            document.getElementById('wasteFactor').value = '15';
+            
+            // Reset navigation
+            document.getElementById('backBtn').style.display = 'none';
+            document.getElementById('nextBtn').textContent = 'Next →';
+            document.getElementById('nextBtn').disabled = true;
+            
+            // Reset progress
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to option cards
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.addEventListener('click', () => selectOption(card));
+            });
+            
+            // Add input validation
+            document.getElementById('squareFootage').addEventListener('input', function() {
+                if (currentStep === 1 && validateInputs()) {
+                    document.getElementById('nextBtn').disabled = false;
+                }
+            });
+            
+            updateProgress();
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('nextBtn').disabled) {
+                nextStep();
+            } else if (e.key === 'Escape' && currentStep > 1) {
+                previousStep();
+            }
+        });
+    </script>
+</body>
+</html>

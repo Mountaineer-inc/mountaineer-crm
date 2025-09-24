@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountaineer Unified Sales Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mountaineer-navy: #002B45;
+            --mountaineer-red: #D3222A;
+            --pure-white: #FFFFFF;
+            --light-gray: #F5F5F5;
+            --dark-gray: #333333;
+            --border-gray: #E0E0E0;
+            --margin-good: #228B22;
+            --margin-warning: #FFA500;
+            --margin-danger: #D3222A;
+            --margin-critical: #8B0000;
+            --font-primary: 'Open Sans', Arial, sans-serif;
+            --border-radius: 8px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--mountaineer-navy) 0%, #003d5c 100%);
+            color: var(--pure-white);
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .tagline {
+            font-size: 14px;
+            color: #B0C4DE;
+            margin-top: 2px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #B0C4DE;
+            text-transform: uppercase;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .project-info-section {
+            background: var(--pure-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .project-info-header {
+            font-weight: 700;
+            color: var(--mountaineer-navy);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .panels-container {
+            display: grid;
+            grid-template-columns: 350px 1fr 300px;
+            gap: 20px;
+            min-height: 600px;
+        }
+
+        .panel {
+            background: var(--pure-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--mountaineer-navy);
+            color: var(--pure-white);
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+
+        .panel-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .control-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .add-zone-btn, .quote-button {
+            background: linear-gradient(135deg, var(--mountaineer-red) 0%, #e13942 100%);
+            color: var(--pure-white);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .add-zone-btn:hover, .quote-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(211, 34, 42, 0.3);
+        }
+
+        .zone-item {
+            border: 2px solid var(--border-gray);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .zone-item:hover {
+            border-color: var(--mountaineer-navy);
+        }
+
+        .zone-item.active {
+            border-color: var(--mountaineer-red);
+            background-color: #fef7f7;
+        }
+
+        .zone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .zone-name {
+            font-weight: 600;
+            color: var(--mountaineer-navy);
+        }
+
+        .zone-size {
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+
+        .zone-service-item {
+            background: #f8f9fa;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-details {
+            flex: 1;
+        }
+
+        .service-name-qty {
+            font-weight: 600;
+            color: var(--mountaineer-navy);
+        }
+
+        .service-price-total {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .remove-service-btn, .remove-zone-btn {
+            background: var(--mountaineer-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .remove-service-btn:hover, .remove-zone-btn:hover {
+            background: #b91c1c;
+        }
+
+        .service-tabs {
+            display: flex;
+            background: var(--light-gray);
+        }
+
+        .service-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .service-tab.active {
+            background: var(--pure-white);
+            color: var(--mountaineer-navy);
+            border-bottom-color: var(--mountaineer-red);
+        }
+
+        .service-card {
+            border: 2px solid var(--border-gray);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .service-card:hover {
+            border-color: var(--mountaineer-navy);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 43, 69, 0.15);
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--mountaineer-navy);
+            font-size: 16px;
+        }
+
+        .service-price {
+            font-weight: 700;
+            color: var(--mountaineer-red);
+            font-size: 18px;
+            margin-top: 5px;
+        }
+
+        .service-description {
+            font-size: 13px;
+            color: var(--dark-gray);
+            margin-top: 8px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .total-row:last-child {
+            border-bottom: none;
+            margin-top: 8px;
+            padding-top: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--mountaineer-navy);
+        }
+
+        .margin-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .margin-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .floor-shield-notification {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--pure-white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .modal-title {
+            font-weight: 700;
+            color: var(--mountaineer-navy);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: var(--mountaineer-red);
+        }
+
+        .system-option {
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .system-option:hover {
+            border-color: #002B45;
+            background-color: #f8f9fa;
+        }
+
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .color-navy { color: var(--mountaineer-navy); }
+        .color-red { color: var(--mountaineer-red); }
+        .color-success { color: var(--margin-good); }
+        .hidden { display: none; }
+
+        @media (max-width: 1200px) {
+            .panels-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <div class="logo-text">MOUNTAINEER</div>
+                <div class="tagline">The last floor coating you'll need to worry about</div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="project-total">$0</div>
+                    <div class="stat-label">Project Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="project-margin">0%</div>
+                    <div class="stat-label">Margin</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="total-sqft">0</div>
+                    <div class="stat-label">Total Sq Ft</div>
+                </div>
+                <button class="add-zone-btn" onclick="loadDemo()" style="padding: 8px 16px; font-size: 12px; width: auto;">Load Demo</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="main-container">
+        <!-- PROJECT INFO SECTION -->
+        <div class="project-info-section">
+            <div class="project-info-header">Project Information</div>
+            <div class="info-grid">
+                <div class="control-group">
+                    <label class="control-label">Customer Name</label>
+                    <input type="text" class="control-input" id="customer-name" placeholder="Enter customer name">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Project Name</label>
+                    <input type="text" class="control-input" id="project-name" placeholder="Enter project name">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Environment Type</label>
+                    <select class="control-input" id="environment-type">
+                        <option value="general">General Commercial</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="warehouse">Warehouse</option>
+                        <option value="food-beverage">Food & Beverage</option>
+                        <option value="pharmaceutical">Pharmaceutical</option>
+                        <option value="heavy-chemical">Heavy Chemical</option>
+                        <option value="automotive">Automotive</option>
+                        <option value="electronics">Electronics/ESD</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Timeline Requirements</label>
+                    <select class="control-input" id="timeline-requirements">
+                        <option value="standard">Standard (48+ hours, optimize cost)</option>
+                        <option value="fast">Fast Track (24-48 hours)</option>
+                        <option value="same-day">Same Day (2-8 hour cure time)</option>
+                        <option value="emergency">Emergency (1-2 hour return to service)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Proposed Start Date</label>
+                    <input type="date" class="control-input" id="start-date">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Hourly Rate Per Crew Member</label>
+                    <input type="number" class="control-input" id="hourly-rate" min="1" step="0.50" value="30.00" placeholder="30.00">
+                </div>
+            </div>
+        </div>
+
+        <!-- THREE PANEL LAYOUT -->
+        <div class="panels-container">
+            <!-- LEFT PANEL: ZONES -->
+            <div class="panel">
+                <div class="panel-header">Project Zones</div>
+                <div class="panel-content" id="zones-container">
+                    <div class="text-center" style="padding: 40px; color: #666;">
+                        <div>No zones created yet</div>
+                        <div style="font-size: 12px; margin-top: 8px;">Click "Add Zone" below to get started</div>
+                    </div>
+                </div>
+                <div style="padding: 20px; border-top: 1px solid var(--border-gray);">
+                    <button class="add-zone-btn" onclick="addNewZone()">+ Add Zone</button>
+                </div>
+            </div>
+
+            <!-- CENTER PANEL: SERVICES -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>Available Services</span>
+                    <div id="selected-zone-info" style="font-size: 14px; font-weight: normal;">Select a zone to add services</div>
+                </div>
+                
+                <div class="service-tabs">
+                    <div class="service-tab active" data-tab="sqft">Square Foot</div>
+                    <div class="service-tab" data-tab="linear">Linear Foot</div>
+                    <div class="service-tab" data-tab="hourly">Hourly</div>
+                </div>
+                
+                <div class="panel-content" id="services-container">
+                    <!-- Services will be loaded here -->
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: TOTALS -->
+            <div class="panel">
+                <div class="panel-header">Project Summary</div>
+                
+                <div style="padding: 20px; border-bottom: 1px solid var(--border-gray);">
+                    <div class="total-row">
+                        <span>Material Cost:</span>
+                        <span id="total-material">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Labor Cost:</span>
+                        <span id="total-labor">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Total Cost:</span>
+                        <span id="total-cost">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Project Total:</span>
+                        <span class="color-navy" id="project-price">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Margin:</span>
+                        <div class="margin-indicator">
+                            <div class="margin-color" id="margin-color" style="background-color: #ccc;"></div>
+                            <span id="margin-percent">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="total-row">
+                        <span>Profit:</span>
+                        <span class="color-success" id="total-profit">$0.00</span>
+                    </div>
+                    
+                    <div id="floor-shield-indicator" class="floor-shield-notification hidden">
+                        🛡️ FREE Essential Floor Shield coverage for the first year - a $2,400 value!
+                    </div>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <div class="control-group">
+                        <label class="control-label">Crew Size</label>
+                        <select class="control-input" id="crew-size">
+                            <option value="2">2 Person Crew</option>
+                            <option value="3" selected>3 Person Crew</option>
+                            <option value="4">4 Person Crew</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Waste Factor</label>
+                        <select class="control-input" id="waste-factor">
+                            <option value="10">10% (Simple)</option>
+                            <option value="15" selected>15% (Standard)</option>
+                            <option value="25">25% (Complex)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Global Discount %</label>
+                        <input type="number" class="control-input" id="global-discount" min="0" max="50" step="0.1" value="0">
+                    </div>
+                    
+                    <button class="quote-button" onclick="generateQuote()">Generate Quote</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="add-zone-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Zone</h3>
+                <button class="close-btn" onclick="closeModal('add-zone-modal')">&times;</button>
+            </div>
+            <form id="zone-form">
+                <div class="control-group">
+                    <label class="control-label">Zone Name</label>
+                    <input type="text" class="control-input" id="zone-name" placeholder="e.g., Production Area" required>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Square Footage</label>
+                    <input type="number" class="control-input" id="zone-sqft" placeholder="e.g., 5000" min="1" required>
+                </div>
+                
+                <div class="control-group">
+                    <button type="submit" class="add-zone-btn">Create Zone</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="quote-modal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Quote Preview</h3>
+                <button class="close-btn" onclick="closeModal('quote-modal')">&times;</button>
+            </div>
+            <div id="quote-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // SERVICES DATABASE WITH SHERWIN WILLIAMS SYSTEMS
+        const services = {
+            sqft: {
+                'polish-seal': { 
+                    name: 'Polish and Seal', price: 5.00, 
+                    description: 'Professional polish with protective sealer',
+                    laborHours: 6, timeline: 2, systems: ['resuflor-grind-seal']
+                },
+                'solid-epoxy': { 
+                    name: '3 Layer Solid Color Epoxy', price: 6.50,
+                    description: 'Durable solid color epoxy system',
+                    laborHours: 8, timeline: 3, systems: ['resuflor-3746-regular', 'resuflor-3746-fast']
+                },
+                'random-flake': { 
+                    name: 'Random Flake', price: 8.00,
+                    description: 'Random flake epoxy finish',
+                    laborHours: 12, timeline: 3, systems: ['resuflor-deco-flake-bc', 'accelera-deco-flake-sb']
+                },
+                'full-flake': { 
+                    name: 'Full Flake', price: 8.00,
+                    description: 'Full coverage flake epoxy system',
+                    laborHours: 15, timeline: 4, systems: ['resuflor-deco-flake-ii']
+                },
+                'quartz': { 
+                    name: 'Quartz', price: 14.00,
+                    description: 'Premium quartz aggregate system',
+                    laborHours: 15, timeline: 4, systems: ['crylaflor-deco-quartz']
+                },
+                'urethane-cement': { 
+                    name: 'Urethane Cement', price: 15.00,
+                    description: 'Heavy-duty industrial urethane cement',
+                    laborHours: 10, timeline: 3, systems: ['poly-crete-hf-quarter']
+                },
+                'extra-floor-prep': { 
+                    name: 'Extra Floor Prep', price: 1.50,
+                    description: 'Additional floor preparation work',
+                    laborHours: 3, timeline: 1, systems: ['prep-materials']
+                },
+                'additional-top-coat': { 
+                    name: 'Additional Top Coat', price: 3.50,
+                    description: 'Single protective coat application',
+                    laborHours: 3, timeline: 1, systems: ['resuflor-topcoats']
+                }
+            },
+            linear: {
+                'integrated-floorboard': { 
+                    name: 'Integrated Floorboard', price: 9.00,
+                    description: 'Hygienic wall-to-floor transition',
+                    laborHours: 0.05, timeline: 1, systems: ['poly-crete-wr-4-cove']
+                },
+                'simple-striping': { 
+                    name: 'Simple Striping', price: 3.00,
+                    description: 'Basic line striping',
+                    laborHours: 0.015, timeline: 1, systems: ['resutile-hts-100']
+                },
+                'complex-striping': { 
+                    name: 'Complex Striping', price: 5.00,
+                    description: 'Multi-color/pattern striping',
+                    laborHours: 0.025, timeline: 1, systems: ['resutile-hts-100']
+                },
+                'wording-striping': { 
+                    name: 'Wording Striping', price: 7.00,
+                    description: 'Text/logo striping with stencils',
+                    laborHours: 0.05, timeline: 1, systems: ['resutile-hts-100']
+                }
+            },
+            hourly: {
+                'concrete-patching': { 
+                    name: 'Concrete Patching', price: 240.00,
+                    description: 'Professional concrete repair and patching',
+                    laborHours: 1, timeline: 0.125, systems: ['patch-materials']
+                }
+            }
+        };
+
+        // SHERWIN WILLIAMS SYSTEMS DATABASE
+        const systems = {
+            'resuflor-grind-seal': {
+                name: 'Resuflor Grind & Seal', family: 'Resuflor', type: 'simple',
+                netCost: 1.58, coverage: 1500, kitCost: 200.00,
+                cureTime: '24-48 hours', chemicalResistance: 'Good', recommended: true
+            },
+            'resuflor-3746-regular': {
+                name: 'Resuflor 3746 Regular', family: 'Resuflor', type: 'simple',
+                netCost: 1.54, coverage: 347, kitCost: 252.00,
+                cureTime: '24+ hours', chemicalResistance: 'Excellent', recommended: true
+            },
+            'resuflor-3746-fast': {
+                name: 'Resuflor 3746 Fast', family: 'Resuflor', type: 'simple',
+                netCost: 1.68, coverage: 347, kitCost: 268.00,
+                cureTime: '12-18 hours', chemicalResistance: 'Excellent', recommended: false
+            },
+            'poly-crete-hf-quarter': {
+                name: 'Poly-Crete HF 1/4"', family: 'Poly-Crete', type: 'simple',
+                netCost: 7.50, coverage: 18, kitCost: 135.00,
+                cureTime: '4-8 hours', chemicalResistance: 'Excellent', recommended: true
+            },
+            'poly-crete-wr-4-cove': {
+                name: 'Poly-Crete WR 4" Cove', family: 'Poly-Crete', type: 'simple',
+                netCost: 3.26, coverage: 35, kitCost: 114.10,
+                cureTime: '4-8 hours', chemicalResistance: 'Excellent', recommended: true
+            },
+            'resuflor-deco-flake-bc': {
+                name: 'Resuflor Deco Flake BC', family: 'Resuflor', type: 'multi-component',
+                estimatedCost: 2.89, cureTime: '24+ hours', chemicalResistance: 'Excellent', recommended: true,
+                components: [
+                    { name: 'Primer', product: 'Resuflor 3579', coverage: 750, kitCost: 258.30 },
+                    { name: 'Basecoat', product: 'Resuflor 3746', coverage: 600, kitCost: 252.00 },
+                    { name: 'Deco Flake', product: '6750/6755 Deco Flake', coverage: 267, kitCost: 140.00 },
+                    { name: 'Grout', product: 'Resuflor 3746', coverage: 600, kitCost: 252.00 },
+                    { name: 'Topcoat', product: 'Resutile HPS 100', coverage: 940, kitCost: 180.00 }
+                ]
+            },
+            'accelera-deco-flake-sb': {
+                name: 'Accelera Deco Flake SB', family: 'Accelera', type: 'multi-component',
+                estimatedCost: 6.43, cureTime: '2-6 hours', chemicalResistance: 'Good', recommended: false,
+                components: [
+                    { name: 'Primer', product: 'Accelera 4850', coverage: 600, kitCost: 233.10 },
+                    { name: 'Basecoat', product: 'Accelera 4850 Pigmented', coverage: 450, kitCost: 268.60 },
+                    { name: 'Deco Flake', product: '6750/6755 Deco Flake', coverage: 267, kitCost: 140.00 },
+                    { name: 'Grout', product: 'Accelera 4850', coverage: 450, kitCost: 268.60 },
+                    { name: 'Topcoat', product: 'Accelera 4850', coverage: 450, kitCost: 268.60 }
+                ]
+            },
+            'crylaflor-deco-quartz': {
+                name: 'Crylaflor Deco Quartz (Q-28)', family: 'Crylaflor', type: 'multi-component',
+                estimatedCost: 7.42, cureTime: '1-2 hours', chemicalResistance: 'Excellent', recommended: true,
+                components: [
+                    { name: 'Primer', product: 'Crylaflor P-101', coverage: 500, kitCost: 385.00 },
+                    { name: 'Basecoat', product: 'Crylaflor G-201', coverage: 300, kitCost: 395.50 },
+                    { name: '1st Quartz', product: '5900F Deco Quartz', coverage: 100, kitCost: 75.00 },
+                    { name: 'Broadcast Coat', product: 'Crylaflor G-201', coverage: 400, kitCost: 360.50 },
+                    { name: '2nd Quartz', product: '5900F Deco Quartz', coverage: 125, kitCost: 75.00 },
+                    { name: 'Topcoat', product: 'Crylaflor T-301/303', coverage: 400, kitCost: 360.50 }
+                ]
+            },
+            'resutile-hts-100': {
+                name: 'Resutile HTS 100', family: 'Resutile', type: 'simple',
+                netCost: 0.15, coverage: 3000, kitCost: 180.00,
+                cureTime: '2-4 hours', chemicalResistance: 'Good', recommended: true
+            },
+            'prep-materials': {
+                name: 'Prep Materials Package', family: 'Preparation', type: 'simple',
+                netCost: 0.15, coverage: 1000, kitCost: 150.00,
+                cureTime: 'N/A', chemicalResistance: 'N/A', recommended: true
+            },
+            'resuflor-topcoats': {
+                name: 'Resuflor Topcoat System', family: 'Resuflor', type: 'simple',
+                netCost: 1.75, coverage: 300, kitCost: 200.00,
+                cureTime: '12-24 hours', chemicalResistance: 'Excellent', recommended: true
+            }
+        };
+
+        // APPLICATION STATE
+        let appState = {
+            zones: [],
+            activeZone: null,
+            activeTab: 'sqft'
+        };
+
+        // MAIN FUNCTIONS
+        function addNewZone() {
+            document.getElementById('add-zone-modal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            // Remove any system selection modals
+            const systemModal = document.getElementById('system-selection-modal');
+            if (systemModal) {
+                systemModal.remove();
+            }
+        }
+
+        function createZone(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('zone-name').value;
+            const sqft = parseInt(document.getElementById('zone-sqft').value);
+            
+            const zone = {
+                id: Date.now(),
+                name: name,
+                sqft: sqft,
+                services: []
+            };
+            
+            appState.zones.push(zone);
+            appState.activeZone = zone;
+            
+            renderZones();
+            updateZoneInfo();
+            updateTotals();
+            closeModal('add-zone-modal');
+            
+            document.getElementById('zone-form').reset();
+        }
+
+        function selectZone(zoneId) {
+            appState.activeZone = appState.zones.find(z => z.id === zoneId);
+            renderZones();
+            updateZoneInfo();
+        }
+
+        function removeZone(zoneId) {
+            if (confirm('Are you sure you want to remove this zone and all its services?')) {
+                appState.zones = appState.zones.filter(z => z.id !== zoneId);
+                if (appState.activeZone && appState.activeZone.id === zoneId) {
+                    appState.activeZone = null;
+                }
+                renderZones();
+                updateZoneInfo();
+                updateTotals();
+            }
+        }
+
+        function removeService(zoneId, serviceIndex) {
+            const zone = appState.zones.find(z => z.id === zoneId);
+            if (zone) {
+                zone.services.splice(serviceIndex, 1);
+                renderZones();
+                updateTotals();
+            }
+        }
+
+        function renderZones() {
+            const container = document.getElementById('zones-container');
+            
+            if (appState.zones.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center" style="padding: 40px; color: #666;">
+                        <div>No zones created yet</div>
+                        <div style="font-size: 12px; margin-top: 8px;">Click "Add Zone" below to get started</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = appState.zones.map(zone => `
+                <div class="zone-item ${appState.activeZone?.id === zone.id ? 'active' : ''}" 
+                     onclick="selectZone(${zone.id})">
+                    <div class="zone-header">
+                        <div class="zone-name">${zone.name}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="zone-size">${zone.sqft.toLocaleString()} sqft</div>
+                            <button class="remove-zone-btn" onclick="event.stopPropagation(); removeZone(${zone.id})">Remove</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        ${zone.services.length > 0 ? 
+                            zone.services.map((service, index) => `
+                                <div class="zone-service-item">
+                                    <div class="service-details">
+                                        <div class="service-name-qty">${service.name}</div>
+                                        <div style="font-size: 11px; color: #666; margin: 2px 0;">System: ${service.systemName || 'System not selected'}</div>
+                                        <div class="service-price-total">
+                                            ${service.quantity} ${service.unit} @ ${service.price.toFixed(2)}/${service.unit} = ${(service.quantity * service.price).toFixed(2)}
+                                            ${service.costs ? `<br><span style="font-size: 10px; color: #666;">Material: ${service.costs.materialCost.toFixed(2)}</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <button class="remove-service-btn" onclick="event.stopPropagation(); removeService(${zone.id}, ${index})">×</button>
+                                </div>
+                            `).join('')
+                            : '<div style="font-size: 12px; color: #666; text-align: center; padding: 10px;">No services added</div>'
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateZoneInfo() {
+            const info = document.getElementById('selected-zone-info');
+            if (appState.activeZone) {
+                info.textContent = `Adding to: ${appState.activeZone.name}`;
+                info.style.color = '#D3222A';
+                info.style.fontWeight = '600';
+            } else {
+                info.textContent = 'Select a zone to add services';
+                info.style.color = '#666';
+                info.style.fontWeight = 'normal';
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.service-tab').forEach(tabEl => {
+                tabEl.classList.toggle('active', tabEl.dataset.tab === tab);
+            });
+            
+            appState.activeTab = tab;
+            displayServices();
+        }
+
+        function displayServices() {
+            const container = document.getElementById('services-container');
+            const serviceList = services[appState.activeTab] || {};
+            
+            if (Object.keys(serviceList).length === 0) {
+                container.innerHTML = '<div class="text-center" style="padding: 40px; color: #666;">No services available</div>';
+                return;
+            }
+
+            const unit = appState.activeTab === 'sqft' ? 'sqft' : 
+                        appState.activeTab === 'linear' ? 'linear ft' : 'hour';
+
+            container.innerHTML = Object.entries(serviceList).map(([key, service]) => `
+                <div class="service-card" onclick="selectService('${key}')">
+                    <div class="service-name">${service.name}</div>
+                    <div class="service-price">${service.price.toFixed(2)}/${unit}</div>
+                    <div class="service-description">${service.description}</div>
+                    <div style="font-size: 11px; color: #666; margin-top: 5px;">
+                        ${service.systems.length} Sherwin Williams system${service.systems.length > 1 ? 's' : ''} available
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectService(serviceKey) {
+            if (!appState.activeZone) {
+                alert('Please select a zone first before adding services.');
+                return;
+            }
+            
+            const service = services[appState.activeTab][serviceKey];
+            const unit = appState.activeTab === 'sqft' ? 'sqft' : 
+                        appState.activeTab === 'linear' ? 'linear ft' : 'hour';
+            
+            showSystemSelectionModal(serviceKey, service, unit);
+        }
+
+        function showSystemSelectionModal(serviceKey, service, unit) {
+            const systemOptions = service.systems.map(systemKey => {
+                const system = systems[systemKey];
+                if (!system) return '';
+                
+                const badge = system.recommended ? 
+                    '<span style="background: #228B22; color: white; padding: 2px 6px; border-radius: 12px; font-size: 10px; margin-left: 8px;">RECOMMENDED</span>' : 
+                    '<span style="background: #666; color: white; padding: 2px 6px; border-radius: 12px; font-size: 10px; margin-left: 8px;">ALTERNATIVE</span>';
+                
+                const costInfo = system.type === 'simple' ? 
+                    `Net Cost: ${system.netCost}/${unit} | Coverage: ${system.coverage} ${unit}/kit` :
+                    `Estimated: ${system.estimatedCost}/${unit} | Multi-component system`;
+                
+                return `
+                    <div class="system-option" onclick="selectSystem('${serviceKey}', '${systemKey}', '${unit}')">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <div style="font-weight: 600; color: #002B45; font-size: 16px;">${system.name}</div>
+                            ${badge}
+                        </div>
+                        <div style="color: #666; font-size: 12px; margin-bottom: 6px;">${system.family} Family</div>
+                        <div style="color: #333; font-size: 13px; margin-bottom: 8px;">${costInfo}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; color: #666;">
+                            <div><strong>Cure Time:</strong> ${system.cureTime}</div>
+                            <div><strong>Chemical Resistance:</strong> ${system.chemicalResistance}</div>
+                        </div>
+                        ${system.type === 'multi-component' ? `
+                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 11px; color: #666;">
+                                <strong>Components:</strong> ${system.components ? system.components.length : 0} parts
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            const modalHTML = `
+                <div class="modal-overlay" id="system-selection-modal" style="display: flex;">
+                    <div class="modal" style="max-width: 600px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Select System for ${service.name}</h3>
+                            <button class="close-btn" onclick="closeModal('system-selection-modal')">&times;</button>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div class="control-group">
+                                <label class="control-label">Quantity (${unit})</label>
+                                <input type="number" class="control-input" id="service-quantity" min="1" step="0.01" placeholder="Enter quantity" required>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #002B45; margin-bottom: 10px;">Available Sherwin Williams Systems:</h4>
+                            ${systemOptions}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const existingModal = document.getElementById('system-selection-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function selectSystem(serviceKey, systemKey, unit) {
+            const quantity = parseFloat(document.getElementById('service-quantity').value);
+            
+            if (!quantity || quantity <= 0) {
+                alert('Please enter a valid quantity.');
+                return;
+            }
+            
+            const service = services[appState.activeTab][serviceKey];
+            const system = systems[systemKey];
+            
+            const materialCosts = calculateSystemCosts(system, quantity, 15);
+            
+            const newService = {
+                key: serviceKey,
+                systemKey: systemKey,
+                name: service.name,
+                systemName: system.name,
+                quantity: quantity,
+                unit: unit,
+                price: service.price,
+                system: system,
+                costs: materialCosts,
+                laborHours: calculateLaborHours(service, quantity, unit)
+            };
+            
+            appState.activeZone.services.push(newService);
+            
+            renderZones();
+            updateTotals();
+            closeModal('system-selection-modal');
+        }
+
+        function calculateSystemCosts(system, quantity, wasteFactor) {
+            const adjustedQuantity = quantity * (1 + wasteFactor / 100);
+            
+            if (system.type === 'simple') {
+                const kitsNeeded = Math.ceil(adjustedQuantity / system.coverage);
+                const materialCost = kitsNeeded * system.kitCost;
+                const excessMaterial = (kitsNeeded * system.coverage) - adjustedQuantity;
+                
+                return {
+                    type: 'simple',
+                    materialCost: materialCost,
+                    kitsNeeded: kitsNeeded,
+                    excessMaterial: excessMaterial,
+                    costPerSqft: materialCost / quantity,
+                    breakdown: `${kitsNeeded} kits × ${system.kitCost} = ${materialCost.toFixed(2)}`
+                };
+            } else {
+                let totalCost = 0;
+                let componentDetails = [];
+                
+                system.components.forEach(component => {
+                    const kitsNeeded = Math.ceil(adjustedQuantity / component.coverage);
+                    const componentCost = kitsNeeded * component.kitCost;
+                    totalCost += componentCost;
+                    
+                    componentDetails.push({
+                        name: component.name,
+                        product: component.product,
+                        kitsNeeded: kitsNeeded,
+                        kitCost: component.kitCost,
+                        totalCost: componentCost,
+                        coverage: component.coverage,
+                        excess: (kitsNeeded * component.coverage) - adjustedQuantity
+                    });
+                });
+                
+                return {
+                    type: 'multi-component',
+                    materialCost: totalCost,
+                    components: componentDetails,
+                    costPerSqft: totalCost / quantity,
+                    breakdown: `${componentDetails.length} components`
+                };
+            }
+        }
+
+        function calculateLaborHours(service, quantity, unit) {
+            if (unit === 'sqft') {
+                return (service.laborHours / 1000) * quantity;
+            } else if (unit === 'linear ft') {
+                return service.laborHours * quantity;
+            } else if (unit === 'hour') {
+                return service.laborHours * quantity;
+            }
+            return 0;
+        }
+
+        function updateTotals() {
+            let totalPrice = 0;
+            let totalSqft = 0;
+            let totalMaterialCost = 0;
+            let totalLaborCost = 0;
+            
+            const hourlyRate = parseFloat(document.getElementById('hourly-rate').value) || 30;
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
+            const discountPercent = parseFloat(document.getElementById('global-discount').value) || 0;
+            
+            appState.zones.forEach(zone => {
+                totalSqft += zone.sqft;
+                zone.services.forEach(service => {
+                    const serviceTotal = service.quantity * service.price;
+                    totalPrice += serviceTotal;
+                    
+                    if (service.costs && service.costs.materialCost) {
+                        totalMaterialCost += service.costs.materialCost;
+                    } else {
+                        totalMaterialCost += serviceTotal * 0.25;
+                    }
+                    
+                    const laborHours = service.laborHours || 0;
+                    totalLaborCost += laborHours * crewSize * hourlyRate;
+                });
+            });
+            
+            const discountAmount = totalPrice * (discountPercent / 100);
+            const netPrice = totalPrice - discountAmount;
+            
+            const totalCost = totalMaterialCost + totalLaborCost;
+            const profit = netPrice - totalCost;
+            const marginPercent = netPrice > 0 ? (profit / netPrice) * 100 : 0;
+            
+            // Update display
+            document.getElementById('project-total').textContent = `${netPrice.toLocaleString()}`;
+            document.getElementById('total-sqft').textContent = totalSqft.toLocaleString();
+            document.getElementById('project-margin').textContent = `${marginPercent.toFixed(1)}%`;
+            
+            document.getElementById('total-material').textContent = `${totalMaterialCost.toFixed(2)}`;
+            document.getElementById('total-labor').textContent = `${totalLaborCost.toFixed(2)}`;
+            document.getElementById('total-cost').textContent = `${totalCost.toFixed(2)}`;
+            document.getElementById('project-price').textContent = `${netPrice.toFixed(2)}`;
+            document.getElementById('total-profit').textContent = `${profit.toFixed(2)}`;
+            document.getElementById('margin-percent').textContent = `${marginPercent.toFixed(1)}%`;
+            
+            // Margin color
+            const marginColor = document.getElementById('margin-color');
+            if (marginPercent < 0) {
+                marginColor.style.backgroundColor = '#8B0000';
+            } else if (marginPercent < 20) {
+                marginColor.style.backgroundColor = '#D3222A';
+            } else if (marginPercent < 30) {
+                marginColor.style.backgroundColor = '#FFA500';
+            } else {
+                marginColor.style.backgroundColor = '#228B22';
+            }
+            
+            // Floor Shield
+            const floorShield = document.getElementById('floor-shield-indicator');
+            if (totalSqft >= 1000) {
+                floorShield.classList.remove('hidden');
+            } else {
+                floorShield.classList.add('hidden');
+            }
+        }
+
+        function generateQuote() {
+            if (appState.zones.length === 0) {
+                alert('Please add at least one zone with services before generating a quote.');
+                return;
+            }
+            
+            const customerName = document.getElementById('customer-name').value || 'Customer Name Not Specified';
+            const projectName = document.getElementById('project-name').value || 'Project Name Not Specified';
+            
+            let totalPrice = 0;
+            let totalSqft = 0;
+            
+            appState.zones.forEach(zone => {
+                totalSqft += zone.sqft;
+                zone.services.forEach(service => {
+                    totalPrice += service.quantity * service.price;
+                });
+            });
+            
+            const discountPercent = parseFloat(document.getElementById('global-discount').value) || 0;
+            const discountAmount = totalPrice * (discountPercent / 100);
+            const netPrice = totalPrice - discountAmount;
+            
+            document.getElementById('quote-modal').style.display = 'flex';
+            document.getElementById('quote-content').innerHTML = `
+                <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+                    <h4 style="color: #002B45; margin-bottom: 10px;">Project Information</h4>
+                    <div><strong>Customer:</strong> ${customerName}</div>
+                    <div><strong>Project:</strong> ${projectName}</div>
+                    <div><strong>Total Square Footage:</strong> ${totalSqft.toLocaleString()} sqft</div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #002B45; margin-bottom: 10px;">Zone Breakdown with Sherwin Williams Systems</h4>
+                    ${appState.zones.map(zone => `
+                        <div style="margin: 15px 0; padding: 15px; border: 1px solid #eee; border-radius: 4px;">
+                            <div style="font-weight: 600; color: #002B45; margin-bottom: 8px;">
+                                ${zone.name} (${zone.sqft.toLocaleString()} sqft)
+                            </div>
+                            ${zone.services.map(service => `
+                                <div style="margin: 8px 0; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">
+                                        ${service.name}: ${service.quantity.toLocaleString()} ${service.unit} @ ${service.price.toFixed(2)}/${service.unit} = ${(service.quantity * service.price).toFixed(2)}
+                                    </div>
+                                    <div style="font-size: 12px; color: #666;">
+                                        <strong>System:</strong> ${service.systemName || 'System not selected'}
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <div style="text-align: right; font-weight: 600; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;">
+                                Zone Total: ${zone.services.reduce((total, service) => total + (service.quantity * service.price), 0).toFixed(2)}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="total-row font-bold">
+                    <span>Project Total:</span>
+                    <span style="color: #002B45;">${netPrice.toFixed(2)}</span>
+                </div>
+                
+                ${totalSqft >= 1000 ? `
+                    <div class="floor-shield-notification">
+                        🛡️ FREE Essential Floor Shield coverage for the first year - a $2,400 value!
+                    </div>
+                ` : ''}
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="add-zone-btn" onclick="downloadQuote()" style="margin-right: 10px; width: auto; padding: 8px 16px;">Download JSON</button>
+                    <button class="add-zone-btn" onclick="window.print()" style="width: auto; padding: 8px 16px;">Print Quote</button>
+                </div>
+            `;
+        }
+
+        function downloadQuote() {
+            const projectData = {
+                timestamp: new Date().toISOString(),
+                customer: {
+                    name: document.getElementById('customer-name').value,
+                    project: document.getElementById('project-name').value
+                },
+                zones: appState.zones
+            };
+            
+            const dataStr = JSON.stringify(projectData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const projectName = document.getElementById('project-name').value || 'mountaineer-quote';
+            const filename = `${projectName.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', filename);
+            linkElement.click();
+        }
+
+        function loadDemo() {
+            document.getElementById('customer-name').value = 'ABC Manufacturing';
+            document.getElementById('project-name').value = 'Production Floor Renovation';
+            document.getElementById('environment-type').value = 'manufacturing';
+            document.getElementById('hourly-rate').value = '32.00';
+            
+            appState.zones = [
+                {
+                    id: 1001,
+                    name: 'Production Area',
+                    sqft: 5000,
+                    services: [
+                        { 
+                            key: 'solid-epoxy', name: '3 Layer Solid Color Epoxy', 
+                            systemKey: 'resuflor-3746-regular', systemName: 'Resuflor 3746 Regular',
+                            quantity: 5000, unit: 'sqft', price: 6.50,
+                            system: systems['resuflor-3746-regular'],
+                            costs: calculateSystemCosts(systems['resuflor-3746-regular'], 5000, 15),
+                            laborHours: (8 / 1000) * 5000
+                        }
+                    ]
+                },
+                {
+                    id: 1002,
+                    name: 'Warehouse Storage',
+                    sqft: 8000,
+                    services: [
+                        { 
+                            key: 'polish-seal', name: 'Polish and Seal',
+                            systemKey: 'resuflor-grind-seal', systemName: 'Resuflor Grind & Seal',
+                            quantity: 8000, unit: 'sqft', price: 5.00,
+                            system: systems['resuflor-grind-seal'],
+                            costs: calculateSystemCosts(systems['resuflor-grind-seal'], 8000, 15),
+                            laborHours: (6 / 1000) * 8000
+                        }
+                    ]
+                }
+            ];
+            
+            appState.activeZone = appState.zones[0];
+            renderZones();
+            updateZoneInfo();
+            updateTotals();
+            
+            alert('Demo project loaded with Sherwin Williams systems!');
+        }
+
+        // EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', function() {
+            displayServices();
+            renderZones();
+            updateTotals();
+            
+            document.querySelectorAll('.service-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+            
+            document.getElementById('zone-form').addEventListener('submit', createZone);
+            
+            ['crew-size', 'waste-factor', 'hourly-rate', 'global-discount'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updateTotals);
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal-overlay')) {
+                    e.target.style.display = 'none';
+                }
+            });
+            
+            console.log('Mountaineer Platform Ready - Product-Based Quoting System');
+        });
+    </script>
+</body>
+</html>

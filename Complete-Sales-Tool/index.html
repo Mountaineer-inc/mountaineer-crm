@@ -1185,6 +1185,7 @@
             
             const service = services[appState.activeTab][serviceKey];
             const system = systems[systemKey];
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
             
             const materialCosts = calculateSystemCosts(system, quantity, 15);
             
@@ -1198,7 +1199,7 @@
                 price: service.price,
                 system: system,
                 costs: materialCosts,
-                laborHours: calculateAccurateLaborHours(serviceKey, quantity, unit)
+                laborHours: calculateDetailedLaborHours(serviceKey, quantity, unit, crewSize).totalHours
             };
             
             appState.activeZone.services.push(newService);
@@ -1254,139 +1255,231 @@
             }
         }
 
-        // IMPROVED LABOR CALCULATION SYSTEM
-        const laborCalculations = {
-            // Base setup/cleanup times (hours)
-            baseSetup: {
-                prep: 1.0,        // Floor prep base time
-                application: 1.5,  // Epoxy application base time
-                striping: 0.5,     // Striping setup time
-                patching: 0.25     // Patching setup time
+        // COMPREHENSIVE LABOR CALCULATION SYSTEM - LAYERED APPROACH
+        const refinedLaborSystem = {
+            // Surface prep as separate service
+            surfacePrep: {
+                light: { ratePerSqft: 0.001, setup: 0.5, cleanup: 0.25 },
+                moderate: { ratePerSqft: 0.002, setup: 0.5, cleanup: 0.25 },
+                heavy: { ratePerSqft: 0.003, setup: 0.5, cleanup: 0.25 }
             },
-            
-            // Hours per square foot by complexity
-            hoursPerSqFt: {
-                // Floor prep rates
-                prep: {
-                    light: 0.00075,    // Average of 0.00067-0.00083
-                    moderate: 0.001125, // Average of 0.001-0.00125
-                    heavy: 0.001715    // Average of 0.00143-0.002
+
+            // Layered coating services with individual layer calculations
+            layeredCoatings: {
+                'polish-seal': {
+                    numCoats: 2,
+                    appRatePerSqft: 0.0025,
+                    layerSetupHr: 0.5,
+                    broadcastFlag: false,
+                    baseSetup: 1.0,
+                    finalCleanup: 0.5
                 },
-                // Epoxy application rates
-                epoxy: {
-                    light: 0.00146,    // Average of 0.00125-0.00167
-                    moderate: 0.002085, // Average of 0.00167-0.0025
-                    heavy: 0.00325     // Average of 0.0025-0.004
+                'solid-epoxy': {
+                    numCoats: 3,
+                    appRatePerSqft: 0.0025,
+                    layerSetupHr: 0.5,
+                    broadcastFlag: false,
+                    baseSetup: 1.0,
+                    finalCleanup: 0.5
                 },
-                // Multi-component systems (flake, quartz)
-                decorative: {
-                    light: 0.002,      // Random flake
-                    moderate: 0.0025,  // Full flake
-                    heavy: 0.003       // Quartz systems
+                'random-flake': {
+                    numCoats: 3,
+                    appRatePerSqft: 0.0022,
+                    layerSetupHr: 0.5,
+                    broadcastFlag: true,
+                    broadcastRate: 0.0013,
+                    broadcastSetupHr: 1.0,
+                    baseSetup: 1.0,
+                    finalCleanup: 0.5
+                },
+                'full-flake': {
+                    numCoats: 3,
+                    appRatePerSqft: 0.0025,
+                    layerSetupHr: 0.5,
+                    broadcastFlag: true,
+                    broadcastRate: 0.0015,
+                    broadcastSetupHr: 1.0,
+                    baseSetup: 1.0,
+                    finalCleanup: 0.5
+                },
+                'quartz': {
+                    numCoats: 3,
+                    appRatePerSqft: 0.0020,
+                    layerSetupHr: 0.5,
+                    broadcastFlag: true,
+                    broadcastRate: 0.0015,
+                    broadcastSetupHr: 1.0,
+                    baseSetup: 1.0,
+                    finalCleanup: 0.5
+                },
+                'urethane-cement': {
+                    numCoats: 2,
+                    appRatePerSqft: 0.0040,
+                    layerSetupHr: 1.0,
+                    broadcastFlag: true,
+                    broadcastRate: 0.0020,
+                    broadcastSetupHr: 1.0,
+                    baseSetup: 1.0,
+                    finalCleanup: 0.5
+                },
+                'extra-floor-prep': {
+                    numCoats: 0, // Pure prep service
+                    appRatePerSqft: 0.002,
+                    layerSetupHr: 0,
+                    broadcastFlag: false,
+                    baseSetup: 0.5,
+                    finalCleanup: 0.25
+                },
+                'additional-top-coat': {
+                    numCoats: 1,
+                    appRatePerSqft: 0.0025,
+                    layerSetupHr: 0.5,
+                    broadcastFlag: false,
+                    baseSetup: 0.5,
+                    finalCleanup: 0.25
                 }
             },
-            
-            // Linear foot rates (hours per linear foot)
-            hoursPerLinearFt: {
-                striping: 0.02,        // 50 linear feet per hour
-                floorboard: 0.05,      // 20 linear feet per hour
-                complexStriping: 0.033 // 30 linear feet per hour
+
+            // Linear foot services
+            linearServices: {
+                'simple-striping': 0.15,
+                'complex-striping': 0.25,
+                'integrated-floorboard': 0.3,
+                'wording-striping': 0.4
+            },
+
+            // Concrete patching
+            concretePatching: {
+                ratePerSqft: 0.12,
+                baseSetup: 1.0
+            },
+
+            // Cure times (calendar hours for scheduling)
+            cureTimes: {
+                primer: 6,
+                baseCoat: 24,
+                broadcast: 24,
+                topCoat: 24
             }
         };
 
-        function calculateAccurateLaborHours(serviceKey, quantity, unit) {
-            const calc = laborCalculations;
-            let baseTime = 0;
-            let variableTime = 0;
-            
-            if (unit === 'sqft') {
-                switch(serviceKey) {
-                    case 'polish-seal':
-                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.prep.light;
-                        break;
-                    case 'solid-epoxy':
-                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.epoxy.moderate;
-                        break;
-                    case 'random-flake':
-                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.decorative.light;
-                        break;
-                    case 'full-flake':
-                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.decorative.moderate;
-                        break;
-                    case 'quartz':
-                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.decorative.heavy;
-                        break;
-                    case 'urethane-cement':
-                        baseTime = calc.baseSetup.prep + calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.epoxy.heavy;
-                        break;
-                    case 'extra-floor-prep':
-                        baseTime = calc.baseSetup.prep;
-                        variableTime = quantity * calc.hoursPerSqFt.prep.moderate;
-                        break;
-                    case 'additional-top-coat':
-                        baseTime = calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.epoxy.light;
-                        break;
-                    default:
-                        baseTime = calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerSqFt.epoxy.moderate;
+        function calculateDetailedLaborHours(serviceKey, quantity, unit, crewSize = 3) {
+            const system = refinedLaborSystem;
+            let totalHours2Person = 0;
+            let layerBreakdown = [];
+            let elapsedTimeHours = 0;
+
+            if (unit === 'sqft' && system.layeredCoatings[serviceKey]) {
+                const service = system.layeredCoatings[serviceKey];
+                
+                // Base setup
+                totalHours2Person += service.baseSetup;
+                
+                // Application hours for all coats
+                const applicationHours = service.numCoats * (quantity * service.appRatePerSqft);
+                totalHours2Person += applicationHours;
+                
+                // Per-layer setup hours
+                const perLayerSetups = service.numCoats * service.layerSetupHr;
+                totalHours2Person += perLayerSetups;
+                
+                // Broadcast hours if applicable
+                let broadcastHours = 0;
+                let broadcastSetup = 0;
+                if (service.broadcastFlag) {
+                    broadcastHours = quantity * service.broadcastRate;
+                    broadcastSetup = service.broadcastSetupHr;
+                    totalHours2Person += broadcastHours + broadcastSetup;
                 }
-            } else if (unit === 'linear ft') {
-                switch(serviceKey) {
-                    case 'integrated-floorboard':
-                        baseTime = calc.baseSetup.application;
-                        variableTime = quantity * calc.hoursPerLinearFt.floorboard;
-                        break;
-                    case 'simple-striping':
-                        baseTime = calc.baseSetup.striping;
-                        variableTime = quantity * calc.hoursPerLinearFt.striping;
-                        break;
-                    case 'complex-striping':
-                    case 'wording-striping':
-                        baseTime = calc.baseSetup.striping;
-                        variableTime = quantity * calc.hoursPerLinearFt.complexStriping;
-                        break;
-                    default:
-                        baseTime = calc.baseSetup.striping;
-                        variableTime = quantity * calc.hoursPerLinearFt.striping;
+                
+                // Final cleanup
+                totalHours2Person += service.finalCleanup;
+                
+                // Calculate elapsed time (includes cure times)
+                elapsedTimeHours = service.baseSetup + service.finalCleanup;
+                if (service.numCoats > 0) {
+                    elapsedTimeHours += system.cureTimes.primer;
+                    if (service.numCoats > 1) {
+                        elapsedTimeHours += system.cureTimes.baseCoat;
+                    }
+                    if (service.broadcastFlag) {
+                        elapsedTimeHours += system.cureTimes.broadcast;
+                    }
+                    elapsedTimeHours += system.cureTimes.topCoat;
                 }
-            } else if (unit === 'hour') {
-                // Hourly services like concrete patching
-                baseTime = calc.baseSetup.patching;
-                variableTime = quantity; // Direct hourly
+                
+                layerBreakdown = [
+                    { step: 'Base Setup', hours: service.baseSetup },
+                    { step: `${service.numCoats} Coats Application`, hours: applicationHours },
+                    { step: 'Per-Layer Setups', hours: perLayerSetups },
+                    ...(service.broadcastFlag ? [
+                        { step: 'Broadcast Setup', hours: broadcastSetup },
+                        { step: 'Broadcast Application', hours: broadcastHours }
+                    ] : []),
+                    { step: 'Final Cleanup', hours: service.finalCleanup }
+                ];
+
+            } else if (unit === 'linear ft' && system.linearServices[serviceKey]) {
+                const rate = system.linearServices[serviceKey];
+                totalHours2Person = 0.5 + (quantity * rate); // 0.5hr setup + application
+                elapsedTimeHours = totalHours2Person; // No cure time for striping
+                
+                layerBreakdown = [
+                    { step: 'Setup & Masking', hours: 0.5 },
+                    { step: 'Application', hours: quantity * rate }
+                ];
+
+            } else if (unit === 'hour' && serviceKey === 'concrete-patching') {
+                const patching = system.concretePatching;
+                totalHours2Person = patching.baseSetup + (quantity * patching.ratePerSqft);
+                elapsedTimeHours = totalHours2Person + 4; // Add 4hrs cure time
+                
+                layerBreakdown = [
+                    { step: 'Setup & Prep', hours: patching.baseSetup },
+                    { step: 'Patching Work', hours: quantity * patching.ratePerSqft }
+                ];
             }
+
+            // Apply crew scaling with efficiency factor
+            const adjustedHours = totalHours2Person * (2 / crewSize) * 0.9;
             
-            return Math.max(0.5, baseTime + variableTime); // Minimum 0.5 hours
+            return {
+                totalHours: Math.max(0.5, adjustedHours),
+                baseHours2Person: totalHours2Person,
+                perPersonHours: adjustedHours / crewSize,
+                elapsedTimeHours: elapsedTimeHours,
+                layerBreakdown: layerBreakdown,
+                crewEfficiency: (2 / crewSize) * 0.9,
+                description: `${layerBreakdown.length} work steps`
+            };
         }
 
-        function calculateProjectTimeline(zones, crewSize = 3) {
-            let totalHours = 0;
-            let criticalPathDays = 0;
+        function calculateAccurateProjectDuration(zones, crewSize = 3) {
+            let totalLaborHours = 0;
+            let totalElapsedHours = 0;
+            let maxZoneElapsedHours = 0;
             
             zones.forEach(zone => {
-                let zoneHours = 0;
+                let zoneLaborHours = 0;
+                let zoneElapsedHours = 0;
+                
                 zone.services.forEach(service => {
-                    const serviceHours = calculateAccurateLaborHours(service.key, service.quantity, service.unit);
-                    zoneHours += serviceHours;
-                    totalHours += serviceHours;
+                    const laborCalc = calculateDetailedLaborHours(service.key, service.quantity, service.unit, crewSize);
+                    zoneLaborHours += laborCalc.totalHours;
+                    zoneElapsedHours += laborCalc.elapsedTimeHours;
                 });
                 
-                // Calculate days for this zone (8 hours per day, parallel work possible)
-                const zoneDays = Math.ceil(zoneHours / (8 * crewSize));
-                criticalPathDays = Math.max(criticalPathDays, zoneDays);
+                totalLaborHours += zoneLaborHours;
+                totalElapsedHours += zoneElapsedHours;
+                maxZoneElapsedHours = Math.max(maxZoneElapsedHours, zoneElapsedHours);
             });
             
             return {
-                totalLaborHours: totalHours,
-                workingDays: Math.max(1, criticalPathDays),
-                averageHoursPerDay: totalHours / Math.max(1, criticalPathDays),
-                crewUtilization: (totalHours / (criticalPathDays * 8 * crewSize)) * 100
+                totalLaborHours: totalLaborHours,
+                totalElapsedHours: maxZoneElapsedHours, // Critical path
+                workingDays: Math.ceil(maxZoneElapsedHours / 24), // Calendar days
+                laborDays: Math.ceil(totalLaborHours / (8 * crewSize)), // Work days
+                averageLaborPerDay: totalLaborHours / Math.max(1, Math.ceil(maxZoneElapsedHours / 24))
             };
         }
 
@@ -1400,6 +1493,14 @@
             const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
             const discountPercent = parseFloat(document.getElementById('global-discount').value) || 0;
             
+            // Update stored labor hours for all services when crew size changes
+            appState.zones.forEach(zone => {
+                zone.services.forEach(service => {
+                    const laborCalc = calculateDetailedLaborHours(service.key, service.quantity, service.unit, crewSize);
+                    service.laborHours = laborCalc.totalHours;
+                });
+            });
+            
             appState.zones.forEach(zone => {
                 totalSqft += zone.sqft;
                 zone.services.forEach(service => {
@@ -1412,8 +1513,8 @@
                         totalMaterialCost += serviceTotal * 0.25;
                     }
                     
-                    const laborHours = calculateAccurateLaborHours(service.key, service.quantity, service.unit);
-                    totalLaborCost += laborHours * crewSize * hourlyRate;
+                    // Use updated labor hours
+                    totalLaborCost += service.laborHours * crewSize * hourlyRate;
                 });
             });
             
@@ -1482,7 +1583,7 @@
             const netPrice = totalPrice - discountAmount;
             
             // Calculate project timeline
-            const timeline = calculateProjectTimeline(appState.zones, crewSize);
+            const timeline = calculateAccurateProjectDuration(appState.zones, crewSize);
             
             document.getElementById('quote-modal').style.display = 'flex';
             document.getElementById('quote-content').innerHTML = `
@@ -1492,8 +1593,11 @@
                     <div><strong>Project:</strong> ${projectName}</div>
                     <div><strong>Total Square Footage:</strong> ${totalSqft.toLocaleString()} sqft</div>
                     <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #ddd;">
-                        <strong>Estimated Timeline:</strong> ${timeline.workingDays} working day${timeline.workingDays > 1 ? 's' : ''} 
-                        (${timeline.totalLaborHours.toFixed(1)} total labor hours with ${crewSize}-person crew)
+                        <strong>Project Timeline:</strong> ${timeline.workingDays} calendar day${timeline.workingDays > 1 ? 's' : ''} 
+                        (${timeline.laborDays} work day${timeline.laborDays > 1 ? 's' : ''} with ${crewSize}-person crew)
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                        Includes cure times between coats and final cure before return to service
                     </div>
                 </div>
                 
@@ -1613,19 +1717,23 @@
                             ...materialDetails
                         });
                         
-                        // Labor calculation
-                        const laborHours = calculateAccurateLaborHours(service.key, service.quantity, service.unit);
-                        const laborCost = laborHours * crewSize * hourlyRate;
+                        // Labor calculation with detailed system
+                        const laborCalc = calculateDetailedLaborHours(service.key, service.quantity, service.unit, crewSize);
+                        const laborCost = laborCalc.totalHours * crewSize * hourlyRate;
                         allLabor.push({
                             zoneName: zone.name,
                             serviceName: service.name,
                             quantity: service.quantity,
                             unit: service.unit,
-                            laborHours: laborHours,
+                            laborHours: laborCalc.totalHours,
+                            perPersonHours: laborCalc.perPersonHours,
+                            elapsedTimeHours: laborCalc.elapsedTimeHours,
+                            layerBreakdown: laborCalc.layerBreakdown,
                             crewSize: crewSize,
                             hourlyRate: hourlyRate,
                             totalLaborCost: laborCost,
-                            timeline: serviceData.timeline || 1
+                            crewEfficiency: laborCalc.crewEfficiency,
+                            description: laborCalc.description
                         });
                         
                         // Margin calculation
@@ -1965,6 +2073,10 @@
             document.getElementById('environment-type').value = 'manufacturing';
             document.getElementById('hourly-rate').value = '32.00';
             
+            // Set crew size first so calculations are consistent
+            document.getElementById('crew-size').value = '3';
+            const crewSize = 3;
+            
             appState.zones = [
                 {
                     id: 1001,
@@ -1977,7 +2089,7 @@
                             quantity: 5000, unit: 'sqft', price: 6.50,
                             system: systems['resuflor-3746-regular'],
                             costs: calculateSystemCosts(systems['resuflor-3746-regular'], 5000, 15),
-                            laborHours: calculateAccurateLaborHours('solid-epoxy', 5000, 'sqft')
+                            laborHours: calculateDetailedLaborHours('solid-epoxy', 5000, 'sqft', crewSize).totalHours
                         }
                     ]
                 },
@@ -1992,7 +2104,7 @@
                             quantity: 8000, unit: 'sqft', price: 5.00,
                             system: systems['resuflor-grind-seal'],
                             costs: calculateSystemCosts(systems['resuflor-grind-seal'], 8000, 15),
-                            laborHours: calculateAccurateLaborHours('polish-seal', 8000, 'sqft')
+                            laborHours: calculateDetailedLaborHours('polish-seal', 8000, 'sqft', crewSize).totalHours
                         }
                     ]
                 }
@@ -2003,7 +2115,7 @@
             updateZoneInfo();
             updateTotals();
             
-            alert('Demo project loaded with Sherwin Williams systems!');
+            alert('Demo project loaded with detailed layered labor calculations!');
         }
 
         // EVENT LISTENERS

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountaineer Floor Shield Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F5F5F5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .calculator-header {
+            background: #2c3e50;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo-image {
+            max-height: 80px;
+            max-width: 300px;
+            margin-bottom: 20px;
+            height: auto;
+            width: auto;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .calculator-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .form-select {
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .form-select:valid {
+            border-color: #27ae60;
+        }
+
+        .calculate-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .calculate-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+        }
+
+        .calculate-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .facility-summary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .summary-details {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .plan-card {
+            background: white;
+            border: 3px solid #ecf0f1;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        .plan-card.recommended {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #f8fff8, #ffffff);
+        }
+
+        .recommended-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .plan-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .plan-price {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .monthly-price {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+
+        .price-period {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .annual-price {
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .plan-highlights {
+            list-style: none;
+        }
+
+        .plan-highlights li {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .highlight-icon {
+            color: #27ae60;
+            margin-right: 10px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .highlight-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .savings-section {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .savings-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .savings-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .savings-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #27ae60;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #ecf0f1;
+            transform: translateY(-2px);
+        }
+
+        .risk-factors {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .risk-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .risk-icon {
+            margin-right: 8px;
+        }
+
+        .risk-list {
+            list-style: none;
+        }
+
+        .risk-list li {
+            padding: 5px 0;
+            color: #856404;
+            font-size: 0.9rem;
+        }
+
+        .risk-list li:before {
+            content: "⚠️";
+            margin-right: 8px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .calculator-container {
+                margin: 10px;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .calculator-content {
+                padding: 20px;
+            }
+
+            .input-section {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .savings-amount {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <!-- Header -->
+        <div class="calculator-header">
+            <div class="logo-container">
+                <img src="https://mountaineerinc.com/wp-content/uploads/2025/07/MFS-logo.png" alt="Mountaineer Floor Shield Logo" class="logo-image">
+            </div>
+            <div class="internal-badge">INTERNAL SALES TOOL</div>
+            <h1 class="header-title">Floor Shield Calculator</h1>
+            <p class="header-subtitle">Quick pricing, savings analysis, and risk assessment for prospects</p>
+        </div>
+
+        <!-- Calculator Content -->
+        <div class="calculator-content">
+            <!-- Input Section -->
+            <div class="input-section">
+                <h2 class="section-title">Tell Us About Your Facility</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="facility-size">Facility Size</label>
+                        <select class="form-select" id="facility-size" required>
+                            <option value="">Select facility size</option>
+                            <option value="under-15k">Under 15,000 sq ft</option>
+                            <option value="15k-35k">15,000 - 35,000 sq ft</option>
+                            <option value="35k-75k">35,000 - 75,000 sq ft</option>
+                            <option value="75k-plus">75,000+ sq ft</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="industry">Industry Type</label>
+                        <select class="form-select" id="industry" required>
+                            <option value="">Select industry</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="food-beverage">Food & Beverage</option>
+                            <option value="pharmaceutical">Pharmaceutical</option>
+                            <option value="distribution">Distribution/Logistics</option>
+                            <option value="chemical">Chemical Processing</option>
+                            <option value="other">Other Industrial</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="operation-schedule">Operation Schedule</label>
+                        <select class="form-select" id="operation-schedule" required>
+                            <option value="">Select operation schedule</option>
+                            <option value="single">Single Shift (8 hours)</option>
+                            <option value="double">Double Shift (16 hours)</option>
+                            <option value="24-7">24/7 Operations</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="floor-age">Current Floor Age</label>
+                        <select class="form-select" id="floor-age" required>
+                            <option value="">Select floor age</option>
+                            <option value="new">Less than 1 year</option>
+                            <option value="recent">1-3 years</option>
+                            <option value="mature">3-5 years</option>
+                            <option value="aging">5+ years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="calculate-button" id="calculate-btn" onclick="calculateFloorShield()" disabled>
+                    Calculate Floor Shield Options
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="results">
+                <div class="facility-summary" id="facility-summary"></div>
+                
+                <div class="pricing-grid" id="pricing-grid"></div>
+                
+                <div class="savings-section" id="savings-section"></div>
+                
+                <div class="risk-factors" id="risk-factors"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enable calculate button when all fields are filled
+        function checkFormCompletion() {
+            const requiredFields = ['facility-size', 'industry', 'operation-schedule', 'floor-age'];
+            const calculateBtn = document.getElementById('calculate-btn');
+            
+            const allFilled = requiredFields.every(id => {
+                const field = document.getElementById(id);
+                return field.value !== '';
+            });
+            
+            calculateBtn.disabled = !allFilled;
+        }
+
+        // Add event listeners to all form fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const formFields = ['facility-size', 'industry', 'operation-schedule', 'floor-age'];
+            formFields.forEach(id => {
+                document.getElementById(id).addEventListener('change', checkFormCompletion);
+            });
+        });
+
+        function calculateFloorShield() {
+            const facilitySize = document.getElementById('facility-size').value;
+            const industry = document.getElementById('industry').value;
+            const operationSchedule = document.getElementById('operation-schedule').value;
+            const floorAge = document.getElementById('floor-age').value;
+
+            // Pricing matrix based on facility size
+            const basePricing = {
+                'under-15k': { essential: 197, complete: 397, premium: 597 },
+                '15k-35k': { essential: 247, complete: 497, premium: 647 },
+                '35k-75k': { essential: 397, complete: 597, premium: 897 },
+                '75k-plus': { essential: 347, complete: 697, premium: 947 }
+            };
+
+            // Industry risk multipliers
+            const industryMultipliers = {
+                'pharmaceutical': 1.1,
+                'food-beverage': 1.05,
+                'chemical': 1.08,
+                'manufacturing': 1.0,
+                'distribution': 0.98,
+                'other': 1.0
+            };
+
+            // Calculate final pricing
+            const prices = basePricing[facilitySize];
+            const multiplier = industryMultipliers[industry] || 1.0;
+            
+            const finalPrices = {
+                essential: Math.round(prices.essential * multiplier),
+                complete: Math.round(prices.complete * multiplier),
+                premium: Math.round(prices.premium * multiplier)
+            };
+
+            // Determine recommended plan
+            let recommended = 'complete'; // default
+            if (operationSchedule === '24-7' || industry === 'pharmaceutical') {
+                recommended = 'premium';
+            } else if (facilitySize === 'under-15k' && operationSchedule === 'single') {
+                recommended = 'essential';
+            }
+
+            // Calculate risk factors
+            const riskFactors = calculateRiskFactors(facilitySize, industry, operationSchedule, floorAge);
+
+            // Display results
+            displayResults(facilitySize, industry, operationSchedule, floorAge, finalPrices, recommended, riskFactors);
+        }
+
+        function calculateRiskFactors(facilitySize, industry, operationSchedule, floorAge) {
+            let riskScore = 0;
+            let factors = [];
+
+            // Floor age risk
+            switch(floorAge) {
+                case 'aging':
+                    riskScore += 3;
+                    factors.push('Floor system over 5 years - high maintenance priority');
+                    break;
+                case 'mature':
+                    riskScore += 2;
+                    factors.push('Floor entering critical maintenance phase (3-5 years)');
+                    break;
+                case 'recent':
+                    riskScore += 1;
+                    factors.push('Proactive maintenance will extend floor life significantly');
+                    break;
+            }
+
+            // Industry risk
+            if (industry === 'pharmaceutical' || industry === 'food-beverage') {
+                riskScore += 2;
+                factors.push('Regulatory compliance requirements increase maintenance criticality');
+            } else if (industry === 'chemical') {
+                riskScore += 2;
+                factors.push('Chemical exposure accelerates floor deterioration');
+            }
+
+            // Operation intensity risk
+            if (operationSchedule === '24-7') {
+                riskScore += 2;
+                factors.push('Continuous operations increase wear and emergency response needs');
+            } else if (operationSchedule === 'double') {
+                riskScore += 1;
+                factors.push('Extended operations require reliable floor performance');
+            }
+
+            // Facility size complexity
+            if (facilitySize === '75k-plus') {
+                riskScore += 1;
+                factors.push('Large facility increases maintenance coordination complexity');
+            }
+
+            return { riskScore, factors };
+        }
+
+        function displayResults(facilitySize, industry, operationSchedule, floorAge, prices, recommended, riskData) {
+            // Facility summary
+            const sizeLabels = {
+                'under-15k': 'Under 15,000 sq ft',
+                '15k-35k': '15,000 - 35,000 sq ft', 
+                '35k-75k': '35,000 - 75,000 sq ft',
+                '75k-plus': '75,000+ sq ft'
+            };
+
+            const industryLabels = {
+                'manufacturing': 'Manufacturing',
+                'food-beverage': 'Food & Beverage',
+                'pharmaceutical': 'Pharmaceutical',
+                'distribution': 'Distribution/Logistics',
+                'chemical': 'Chemical Processing',
+                'other': 'Other Industrial'
+            };
+
+            const scheduleLabels = {
+                'single': 'Single Shift (8 hours)',
+                'double': 'Double Shift (16 hours)',
+                '24-7': '24/7 Operations'
+            };
+
+            document.getElementById('facility-summary').innerHTML = `
+                <div class="summary-title">Our Facility Profile</div>
+                <div class="summary-details">
+                    ${sizeLabels[facilitySize]} • ${industryLabels[industry]} • ${scheduleLabels[operationSchedule]}
+                </div>
+            `;
+
+            // Pricing cards
+            const plans = [
+                {
+                    name: 'Essential Floor Shield',
+                    price: prices.essential,
+                    key: 'essential',
+                    highlights: [
+                        '2 comprehensive assessments per year',
+                        '15% discount on all services',
+                        '48-hour emergency response',
+                        'Basic condition reporting',
+                        'Perfect for smaller facilities'
+                    ]
+                },
+                {
+                    name: 'Complete Floor Shield',
+                    price: prices.complete,
+                    key: 'complete',
+                    highlights: [
+                        '3 assessments per year (every 4 months)',
+                        '25% discount on all services',
+                        '24-hour emergency response',
+                        'Minor repairs included ($1,500/year)',
+                        'Detailed photo documentation',
+                        'Most popular choice'
+                    ]
+                },
+                {
+                    name: 'Premium Floor Shield',
+                    price: prices.premium,
+                    key: 'premium',
+                    highlights: [
+                        '4 quarterly assessments per year',
+                        '35% discount on all services',
+                        '12-hour emergency response',
+                        'All maintenance included ($3,500/year)',
+                        'Annual strategic planning session',
+                        'Perfect for critical operations'
+                    ]
+                }
+            ];
+
+            let pricingHTML = '';
+            plans.forEach(plan => {
+                const isRecommended = plan.key === recommended;
+                const annualPrice = plan.price * 12;
+                
+                pricingHTML += `
+                    <div class="plan-card ${isRecommended ? 'recommended' : ''}">
+                        ${isRecommended ? '<div class="recommended-badge">⭐ Recommended</div>' : ''}
+                        <div class="plan-name">${plan.name}</div>
+                        <div class="plan-price">
+                            <div class="monthly-price">$${plan.price}</div>
+                            <div class="price-period">per month</div>
+                            <div class="annual-price">$${annualPrice.toLocaleString()} annually</div>
+                        </div>
+                        <ul class="plan-highlights">
+                            ${plan.highlights.map(highlight => `
+                                <li>
+                                    <span class="highlight-icon">✓</span>
+                                    <span class="highlight-text">${highlight}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+
+            document.getElementById('pricing-grid').innerHTML = pricingHTML;
+
+            // Savings calculation (updated for psychological impact)
+            const recommendedPlan = plans.find(p => p.key === recommended);
+            const averageEmergencyCost = 28500;
+            const preventedEmergencies = 3; // Average emergencies prevented over 5 years
+            const totalPreventedCosts = averageEmergencyCost * preventedEmergencies;
+            const totalProgramCost = recommendedPlan.price * 12 * 5;
+            const fiveYearSavings = totalPreventedCosts - totalProgramCost;
+
+            document.getElementById('savings-section').innerHTML = `
+                <div class="savings-title">Avoid These Costs with ${recommendedPlan.name}</div>
+                <div class="savings-amount">${fiveYearSavings.toLocaleString()}</div>
+                <div class="savings-description">
+                    Potential savings from preventing ${preventedEmergencies} major floor failures over 5 years<br>
+                    <small style="opacity: 0.8;">Average emergency repair cost: ${averageEmergencyCost.toLocaleString()}</small>
+                </div>
+                <a href="/floor-shield/" class="cta-button">Protect Our Operations Today</a>
+            `;
+
+            // Risk factors
+            document.getElementById('risk-factors').innerHTML = `
+                <div class="risk-title">
+                    <span class="risk-icon">⚠️</span>
+                    Risk Assessment for Our Facility
+                </div>
+                <ul class="risk-list">
+                    ${riskData.factors.map(factor => `<li>${factor}</li>`).join('')}
+                </ul>
+            `;
+
+            // Show results
+            document.getElementById('results').classList.add('show');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

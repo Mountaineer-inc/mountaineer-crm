@@ -825,6 +825,11 @@
                     name: 'Additional Top Coat', price: 3.50,
                     description: 'Single protective coat application',
                     laborHours: 3, timeline: 1, systems: ['resuflor-topcoats']
+                },
+                'striping-large-area': { 
+                    name: 'Striping - Large Area', price: 7.00,
+                    description: 'Single protective coat application',
+                    laborHours: 3, timeline: 1, systems: ['resuflor-topcoats']
                 }
             },
             linear: {
@@ -844,9 +849,9 @@
                     laborHours: 0.025, timeline: 1, systems: ['resutile-hts-100']
                 },
                 'wording-striping': { 
-                    name: 'Wording Striping', price: 7.00,
+                    name: 'Wording Striping', price: 12.00,
                     description: 'Text/logo striping with stencils',
-                    laborHours: 0.05, timeline: 1, systems: ['resutile-hts-100']
+                    laborHours: 0.1, timeline: 1, systems: ['resutile-hts-100']
                 }
             },
             hourly: {
@@ -919,9 +924,14 @@
                     { name: 'Topcoat', product: 'Crylaflor T-301/303', coverage: 400, kitCost: 360.50 }
                 ]
             },
-            'resutile-hts-100': {
+            'resutile-hts-100 - Striping': {
                 name: 'Resutile HTS 100', family: 'Resutile', type: 'simple',
                 netCost: 0.15, coverage: 3000, kitCost: 180.00,
+                cureTime: '2-4 hours', chemicalResistance: 'Good', recommended: true
+            },
+            'resutile-hts-100 - Large Area': {
+                name: 'Resutile HTS 100 - Large Area', family: 'Resutile', type: 'simple',
+                netCost: 0.15, coverage: 1050, kitCost: 180.00,
                 cureTime: '2-4 hours', chemicalResistance: 'Good', recommended: true
             },
             'prep-materials': {

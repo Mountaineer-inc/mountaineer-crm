@@ -540,7 +540,8 @@
         }
     </style>
 </head>
-<body>
+<body>`
+    <input type="file" id="load-project-input" accept=".json" style="display: none;" onchange="handleLoadProject(event)">
     <!-- HEADER -->
     <header class="header">
         <div class="header-content">
@@ -561,7 +562,7 @@
                     <div class="stat-value" id="total-sqft">0</div>
                     <div class="stat-label">Total Sq Ft</div>
                 </div>
-                <button class="add-zone-btn" onclick="loadDemo()" style="padding: 8px 16px; font-size: 12px; width: auto;">Load Demo</button>
+                <button class="add-zone-btn" onclick="document.getElementById('load-project-input').click()" style="padding: 8px 16px; font-size: 12px; width: auto;">📂 Load Project</button>
             </div>
         </div>
     </header>
@@ -757,7 +758,9 @@
                 <h3 class="modal-title">Internal Business Details</h3>
                 <button class="close-btn" onclick="closeModal('internal-details-modal')">&times;</button>
             </div>
-            
+            <div style="padding: 15px; border-bottom: 1px solid var(--border-gray); text-align: right;">
+                <button class="add-zone-btn" onclick="copyInternalDetailsToClipboard()" style="width: auto; padding: 8px 16px; font-size: 14px;">Copy to Clipboard</button>
+            </div>
             <div class="internal-tabs">
                 <div class="internal-tab active" data-tab="materials">Materials</div>
                 <div class="internal-tab" data-tab="labor">Labor</div>
@@ -1648,19 +1651,32 @@
                 
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="add-zone-btn" onclick="downloadQuote()" style="margin-right: 10px; width: auto; padding: 8px 16px;">Download JSON</button>
-                    <button class="add-zone-btn" onclick="window.print()" style="width: auto; padding: 8px 16px;">Print Quote</button>
+                    <button class="add-zone-btn" onclick="copyQuoteToClipboard()" style="width: auto; padding: 8px 16px;">Copy Quote</button>
                 </div>
             `;
         }
 
         function downloadQuote() {
             const projectData = {
+                version: '1.0',
                 timestamp: new Date().toISOString(),
                 customer: {
                     name: document.getElementById('customer-name').value,
                     project: document.getElementById('project-name').value
                 },
-                zones: appState.zones
+                projectSettings: {
+                    environmentType: document.getElementById('environment-type').value,
+                    timelineRequirements: document.getElementById('timeline-requirements').value,
+                    startDate: document.getElementById('start-date').value,
+                    hourlyRate: parseFloat(document.getElementById('hourly-rate').value) || 30.00
+                },
+                quoteSettings: {
+                    crewSize: parseInt(document.getElementById('crew-size').value) || 3,
+                    wasteFactor: parseInt(document.getElementById('waste-factor').value) || 15,
+                    globalDiscount: parseFloat(document.getElementById('global-discount').value) || 0
+                },
+                zones: appState.zones,
+                activeZoneId: appState.activeZone ? appState.activeZone.id : null
             };
             
             const dataStr = JSON.stringify(projectData, null, 2);
@@ -1674,7 +1690,446 @@
             linkElement.setAttribute('download', filename);
             linkElement.click();
         }
+function handleLoadProject(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const projectData = JSON.parse(e.target.result);
+                    
+                    // Validate JSON structure
+                    if (!projectData.zones || !Array.isArray(projectData.zones)) {
+                        throw new Error('Invalid project file');
+                    }
+                    
+                    // Restore customer info
+                    document.getElementById('customer-name').value = projectData.customer?.name || '';
+                    document.getElementById('project-name').value = projectData.customer?.project || '';
+                    
+                    // Restore project settings
+                    if (projectData.projectSettings) {
+                        document.getElementById('environment-type').value = projectData.projectSettings.environmentType || 'general';
+                        document.getElementById('timeline-requirements').value = projectData.projectSettings.timelineRequirements || 'standard';
+                        document.getElementById('start-date').value = projectData.projectSettings.startDate || '';
+                        document.getElementById('hourly-rate').value = projectData.projectSettings.hourlyRate || 30.00;
+                    }
+                    
+                    // Restore quote settings
+                    if (projectData.quoteSettings) {
+                        document.getElementById('crew-size').value = projectData.quoteSettings.crewSize || 3;
+                        document.getElementById('waste-factor').value = projectData.quoteSettings.wasteFactor || 15;
+                        document.getElementById('global-discount').value = projectData.quoteSettings.globalDiscount || 0;
+                    }
+                    
+                    // Restore zones
+                    appState.zones = projectData.zones;
+                    
+                    // Set active zone
+                    if (projectData.activeZoneId && appState.zones.find(z => z.id === projectData.activeZoneId)) {
+                        appState.activeZone = appState.zones.find(z => z.id === projectData.activeZoneId);
+                    } else if (appState.zones.length > 0) {
+                        appState.activeZone = appState.zones[0];
+                    } else {
+                        appState.activeZone = null;
+                    }
+                    
+                    // Refresh UI
+                    renderZones();
+                    updateZoneInfo();
+                    updateTotals();
+                    
+                    alert('✅ Project loaded successfully!');
+                    
+                } catch (err) {
+                    console.error('Load error:', err);
+                    alert('Error loading project file. Make sure it\'s a valid Mountaineer JSON.');
+                }
+            };
+            
+            reader.readAsText(file);
+            event.target.value = ''; // Reset so same file can be loaded again
+        }
+        function copyQuoteToClipboard() {
+            if (appState.zones.length === 0) {
+                alert('Please add at least one zone with services before copying.');
+                return;
+            }
+            
+            const customerName = document.getElementById('customer-name').value || 'Customer Name Not Specified';
+            const projectName = document.getElementById('project-name').value || 'Project Name Not Specified';
+            const environment = document.getElementById('environment-type').value;
+            const timeline = document.getElementById('timeline-requirements').value;
+            const startDate = document.getElementById('start-date').value || 'TBD';
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
+            
+            let totalPrice = 0;
+            let totalSqft = 0;
+            
+            appState.zones.forEach(zone => {
+                totalSqft += zone.sqft;
+                zone.services.forEach(service => {
+                    totalPrice += service.quantity * service.price;
+                });
+            });
+            
+            const discountPercent = parseFloat(document.getElementById('global-discount').value) || 0;
+            const discountAmount = totalPrice * (discountPercent / 100);
+            const netPrice = totalPrice - discountAmount;
+            
+            // Calculate project duration
+            const duration = calculateAccurateProjectDuration(appState.zones, crewSize);
+            
+            // Build zone breakdown
+            let zoneBreakdown = '';
+            appState.zones.forEach(zone => {
+                if (zone.services.length === 0) return;
+                
+                const zoneTotal = zone.services.reduce((sum, s) => sum + (s.quantity * s.price), 0);
+                
+                zoneBreakdown += `\n${zone.name} (${zone.sqft.toLocaleString()} sqft)\n`;
+                zone.services.forEach(service => {
+                    const serviceTotal = service.quantity * service.price;
+                    zoneBreakdown += `  • ${service.name}: ${service.quantity.toLocaleString()} ${service.unit} @ $${service.price.toFixed(2)}/${service.unit} = $${serviceTotal.toLocaleString('en-US', {minimumFractionDigits:2})}\n`;
+                    zoneBreakdown += `    System: ${service.systemName}\n`;
+                });
+                zoneBreakdown += `  Zone Total: $${zoneTotal.toLocaleString('en-US', {minimumFractionDigits:2})}\n`;
+            });
+            
+            const floorShieldNote = totalSqft >= 1000 ? '\n🛡️ INCLUDES: FREE Floor Shield coverage (first year) - $2,400 value\n' : '';
+            const discountLine = discountPercent > 0 ? `\nSubtotal: $${totalPrice.toLocaleString('en-US', {minimumFractionDigits:2})}\nDiscount (${discountPercent}%): -$${discountAmount.toLocaleString('en-US', {minimumFractionDigits:2})}\n` : '';
+            
+            const quoteText = `MOUNTAINEER FLOOR COATING
+Professional Quote
+${'─'.repeat(60)}
+
+PROJECT INFORMATION
+Customer: ${customerName}
+Project: ${projectName}
+Environment: ${environment}
+Timeline: ${timeline}
+Start Date: ${startDate}
+Total Area: ${totalSqft.toLocaleString()} sqft
+
+SCOPE OF WORK
+${zoneBreakdown}
+${'─'.repeat(60)}
+
+PROJECT SUMMARY
+Estimated Duration: ${duration.workingDays} calendar day${duration.workingDays > 1 ? 's' : ''} (${duration.laborDays} work day${duration.laborDays > 1 ? 's' : ''} with ${crewSize}-person crew)${discountLine}
+TOTAL INVESTMENT: $${netPrice.toLocaleString('en-US', {minimumFractionDigits:2})}
+${floorShieldNote}
+DUAL WARRANTY PROTECTION
+  ✓ Mountaineer: 5-year workmanship & installation warranty
+  ✓ Sherwin Williams: 1-year materials warranty
+
+All work uses Sherwin Williams Industrial Epoxy Systems exclusively.
+"The last floor coating you'll need to worry about."
+
+This quote is valid for 30 days and includes all prep work.
+${'─'.repeat(60)}`;
+
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(quoteText).then(() => {
+                    alert('✅ Quote copied to clipboard!');
+                }).catch(err => {
+                    // Fallback for clipboard API failure
+                    fallbackCopyToClipboard(quoteText);
+                });
+            } else {
+                // Fallback for browsers that don't support clipboard API
+                fallbackCopyToClipboard(quoteText);
+            }
+        }
+        
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert('✅ Quote copied to clipboard!');
+            } catch (err) {
+                alert('❌ Failed to copy. Please manually select and copy the quote text.');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        function generateMaterialsText() {
+            const hourlyRate = parseFloat(document.getElementById('hourly-rate').value) || 30;
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
+            const wasteFactor = parseInt(document.getElementById('waste-factor').value) || 15;
+            
+            let text = 'MOUNTAINEER - MATERIAL REQUIREMENTS\n';
+            text += '═'.repeat(60) + '\n\n';
+            
+            const groupedByZone = {};
+            appState.zones.forEach(zone => {
+                zone.services.forEach(service => {
+                    const system = systems[service.systemKey];
+                    if (system) {
+                        if (!groupedByZone[zone.name]) groupedByZone[zone.name] = [];
+                        
+                        const materialDetails = calculateDetailedMaterials(system, service.quantity, wasteFactor);
+                        groupedByZone[zone.name].push({
+                            serviceName: service.name,
+                            systemName: system.name,
+                            quantity: service.quantity,
+                            unit: service.unit,
+                            ...materialDetails
+                        });
+                    }
+                });
+            });
+            
+            Object.entries(groupedByZone).forEach(([zoneName, services]) => {
+                text += `ZONE: ${zoneName}\n`;
+                text += '─'.repeat(60) + '\n';
+                
+                services.forEach(service => {
+                    text += `\n${service.serviceName} - ${service.systemName}\n`;
+                    text += `Quantity: ${service.quantity.toLocaleString()} ${service.unit} (${service.adjustedQuantity.toFixed(0)} with ${service.wasteFactor}% waste)\n\n`;
+                    
+                    if (service.requirements) {
+                        service.requirements.forEach(req => {
+                            text += `  ${req.name}\n`;
+                            text += `    Buy ${req.kitsNeeded} kits of ${req.product} @ $${req.costPerKit.toFixed(2)}/kit = $${req.totalCost.toFixed(2)}\n`;
+                            text += `    Coverage: ${req.coverage} ${service.unit}/kit | Excess: ${req.excess.toFixed(0)} ${service.unit}\n\n`;
+                        });
+                    }
+                    
+                    text += `  Material Cost: $${service.totalMaterialCost.toFixed(2)}\n`;
+                });
+                
+                text += '\n';
+            });
+            
+            return text;
+        }
+        
+        function generateLaborText() {
+            const hourlyRate = parseFloat(document.getElementById('hourly-rate').value) || 30;
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
+            
+            let text = 'MOUNTAINEER - LABOR ANALYSIS\n';
+            text += '═'.repeat(60) + '\n\n';
+            
+            const groupedByZone = {};
+            let totalProjectHours = 0;
+            let totalProjectCost = 0;
+            
+            appState.zones.forEach(zone => {
+                if (!groupedByZone[zone.name]) groupedByZone[zone.name] = { services: [], hours: 0, cost: 0 };
+                
+                zone.services.forEach(service => {
+                    const laborCalc = calculateDetailedLaborHours(service.key, service.quantity, service.unit, crewSize);
+                    const laborCost = laborCalc.totalHours * crewSize * hourlyRate;
+                    
+                    groupedByZone[zone.name].services.push({
+                        serviceName: service.name,
+                        quantity: service.quantity,
+                        unit: service.unit,
+                        laborHours: laborCalc.totalHours,
+                        laborCost: laborCost,
+                        crewSize: crewSize,
+                        hourlyRate: hourlyRate
+                    });
+                    
+                    groupedByZone[zone.name].hours += laborCalc.totalHours;
+                    groupedByZone[zone.name].cost += laborCost;
+                    totalProjectHours += laborCalc.totalHours;
+                    totalProjectCost += laborCost;
+                });
+            });
+            
+            Object.entries(groupedByZone).forEach(([zoneName, data]) => {
+                text += `ZONE: ${zoneName}\n`;
+                text += '─'.repeat(60) + '\n';
+                
+                data.services.forEach(service => {
+                    text += `${service.serviceName}\n`;
+                    text += `  ${service.quantity.toLocaleString()} ${service.unit}\n`;
+                    text += `  ${service.laborHours.toFixed(1)} hrs × ${service.crewSize} crew × $${service.hourlyRate}/hr = $${service.laborCost.toFixed(2)}\n\n`;
+                });
+                
+                text += `Zone Total: $${data.cost.toFixed(2)} (${data.hours.toFixed(1)} hours)\n\n`;
+            });
+            
+            text += '═'.repeat(60) + '\n';
+            text += `PROJECT LABOR SUMMARY\n`;
+            text += `Total Labor Hours: ${totalProjectHours.toFixed(1)} hours\n`;
+            text += `Total Labor Cost: $${totalProjectCost.toFixed(2)}\n`;
+            text += `Estimated Duration: ${Math.ceil(totalProjectHours / (8 * crewSize))} working days\n`;
+            
+            return text;
+        }
+        
+        function generateMarginsText() {
+            const hourlyRate = parseFloat(document.getElementById('hourly-rate').value) || 30;
+            const crewSize = parseInt(document.getElementById('crew-size').value) || 3;
+            const wasteFactor = parseInt(document.getElementById('waste-factor').value) || 15;
+            
+            let text = 'MOUNTAINEER - MARGIN ANALYSIS\n';
+            text += '═'.repeat(60) + '\n\n';
+            
+            let totalRevenue = 0;
+            let totalCosts = 0;
+            let totalProfit = 0;
+            
+            const groupedByZone = {};
+            
+            appState.zones.forEach(zone => {
+                zone.services.forEach(service => {
+                    if (!groupedByZone[zone.name]) groupedByZone[zone.name] = [];
+                    
+                    const system = systems[service.systemKey];
+                    if (system) {
+                        const materialDetails = calculateDetailedMaterials(system, service.quantity, wasteFactor);
+                        const laborCalc = calculateDetailedLaborHours(service.key, service.quantity, service.unit, crewSize);
+                        const laborCost = laborCalc.totalHours * crewSize * hourlyRate;
+                        
+                        const revenue = service.quantity * service.price;
+                        const materialCost = materialDetails.totalMaterialCost;
+                        const totalCost = materialCost + laborCost;
+                        const profit = revenue - totalCost;
+                        const marginPercent = revenue > 0 ? (profit / revenue) * 100 : 0;
+                        
+                        groupedByZone[zone.name].push({
+                            serviceName: service.name,
+                            revenue: revenue,
+                            materialCost: materialCost,
+                            laborCost: laborCost,
+                            totalCost: totalCost,
+                            profit: profit,
+                            marginPercent: marginPercent
+                        });
+                        
+                        totalRevenue += revenue;
+                        totalCosts += totalCost;
+                        totalProfit += profit;
+                    }
+                });
+            });
+            
+            Object.entries(groupedByZone).forEach(([zoneName, services]) => {
+                text += `ZONE: ${zoneName}\n`;
+                text += '─'.repeat(60) + '\n';
+                
+                services.forEach(service => {
+                    text += `\n${service.serviceName} - ${service.marginPercent.toFixed(1)}% Margin\n`;
+                    text += `  Revenue:  $${service.revenue.toFixed(2)}\n`;
+                    text += `  Material: $${service.materialCost.toFixed(2)}\n`;
+                    text += `  Labor:    $${service.laborCost.toFixed(2)}\n`;
+                    text += `  Profit:   $${service.profit.toFixed(2)}\n`;
+                });
+                
+                text += '\n';
+            });
+            
+            const overallMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+            
+            text += '═'.repeat(60) + '\n';
+            text += `PROJECT MARGIN SUMMARY\n`;
+            text += `Total Revenue: $${totalRevenue.toFixed(2)}\n`;
+            text += `Total Costs:   $${totalCosts.toFixed(2)}\n`;
+            text += `Total Profit:  $${totalProfit.toFixed(2)}\n`;
+            text += `Overall Margin: ${overallMargin.toFixed(1)}%\n`;
+            
+            return text;
+        }
+        
+        function generateShoppingText() {
+            const wasteFactor = parseInt(document.getElementById('waste-factor').value) || 15;
+            
+            let text = 'MOUNTAINEER - SHERWIN WILLIAMS SHOPPING LIST\n';
+            text += '═'.repeat(60) + '\n\n';
+            
+            let shoppingList = new Map();
+            
+            appState.zones.forEach(zone => {
+                zone.services.forEach(service => {
+                    const system = systems[service.systemKey];
+                    if (system) {
+                        const materialDetails = calculateDetailedMaterials(system, service.quantity, wasteFactor);
+                        
+                        if (materialDetails.requirements) {
+                            materialDetails.requirements.forEach(req => {
+                                const key = req.product;
+                                if (shoppingList.has(key)) {
+                                    const existing = shoppingList.get(key);
+                                    existing.totalKits += req.kitsNeeded;
+                                    existing.totalCost += req.totalCost;
+                                    existing.zones.add(zone.name);
+                                } else {
+                                    shoppingList.set(key, {
+                                        product: req.product,
+                                        costPerKit: req.costPerKit,
+                                        totalKits: req.kitsNeeded,
+                                        totalCost: req.totalCost,
+                                        zones: new Set([zone.name])
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+            
+            let grandTotal = 0;
+            let itemCount = 0;
+            
+            const sortedItems = Array.from(shoppingList.entries()).sort((a, b) => a[1].product.localeCompare(b[1].product));
+            
+            sortedItems.forEach(([key, item]) => {
+                text += `${item.product}\n`;
+                text += `  Order: ${item.totalKits} kits @ $${item.costPerKit.toFixed(2)}/kit = $${item.totalCost.toFixed(2)}\n`;
+                text += `  Used in zones: ${Array.from(item.zones).join(', ')}\n\n`;
+                
+                grandTotal += item.totalCost;
+                itemCount += item.totalKits;
+            });
+            
+            text += '═'.repeat(60) + '\n';
+            text += `ORDER SUMMARY\n`;
+            text += `Total Items: ${sortedItems.length} products\n`;
+            text += `Total Kits: ${itemCount} kits\n`;
+            text += `Total Material Cost: $${grandTotal.toFixed(2)}\n\n`;
+            text += `This shopping list shows exactly what to purchase from Sherwin Williams.\n`;
+            text += `All quantities include waste factor and are rounded up to complete kits.\n`;
+            
+            return text;
+        }
+
+        function copyInternalDetailsToClipboard() {
+            let textContent = '';
+            
+            textContent += generateMaterialsText();
+            textContent += '\n\n\n';
+            textContent += generateLaborText();
+            textContent += '\n\n\n';
+            textContent += generateMarginsText();
+            textContent += '\n\n\n';
+            textContent += generateShoppingText();
+            
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textContent).then(() => {
+                    alert('✅ Complete internal details copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyToClipboard(textContent);
+                });
+            } else {
+                fallbackCopyToClipboard(textContent);
+            }
+        }
         function openInternalDetails() {
             if (appState.zones.length === 0) {
                 alert('Please add zones and services before viewing internal details.');

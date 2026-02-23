@@ -640,7 +640,7 @@
                 <div class="service-tabs">
                     <div class="service-tab active" data-tab="sqft">Square Foot</div>
                     <div class="service-tab" data-tab="linear">Linear Foot</div>
-                    <div class="service-tab" data-tab="hourly">Hourly</div>
+                    <div class="service-tab" data-tab="custom">Custom / Other</div>
                 </div>
                 
                 <div class="panel-content" id="services-container">
@@ -857,13 +857,7 @@
                     laborHours: 0.1, timeline: 1, systems: ['resutile-hts-100-large area']
                 }
             },
-            hourly: {
-                'concrete-patching': { 
-                    name: 'Concrete Patching', price: 240.00,
-                    description: 'Professional concrete repair and patching',
-                    laborHours: 1, timeline: 0.125, systems: ['patch-materials']
-                }
-            }
+            custom: {}
         };
 
         // SHERWIN WILLIAMS SYSTEMS DATABASE
@@ -1091,7 +1085,40 @@
         function displayServices() {
             const container = document.getElementById('services-container');
             const serviceList = services[appState.activeTab] || {};
-            
+            if (appState.activeTab === 'custom') {
+    container.innerHTML = `
+        <div style="padding: 20px;">
+            <div class="control-group">
+                <label class="control-label">Item Name</label>
+                <input type="text" class="control-input" id="customName" placeholder="e.g., Shotblast Rental, Concrete Patching">
+            </div>
+            <div class="control-group">
+                <label class="control-label">Description / Notes</label>
+                <input type="text" class="control-input" id="customDesc" placeholder="e.g., 2 days @ $450/day">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="control-group">
+                    <label class="control-label">Sale Price ($)</label>
+                    <input type="number" class="control-input" id="customPrice" min="0" step="0.01" placeholder="0.00">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Our Cost ($)</label>
+                    <input type="number" class="control-input" id="customCost" min="0" step="0.01" placeholder="0.00">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Quantity</label>
+                    <input type="number" class="control-input" id="customQty" min="0.01" step="0.01" value="1">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Labor Hours</label>
+                    <input type="number" class="control-input" id="customLabor" min="0" step="0.25" value="0">
+                </div>
+            </div>
+            <button class="add-zone-btn" onclick="addCustomItem()" style="margin-top: 10px;">+ Add to Zone</button>
+        </div>
+    `;
+    return;
+}
             if (Object.keys(serviceList).length === 0) {
                 container.innerHTML = '<div class="text-center" style="padding: 40px; color: #666;">No services available</div>';
                 return;
@@ -2582,7 +2609,36 @@ ${'─'.repeat(60)}`;
             
             alert('Demo project loaded with detailed layered labor calculations!');
         }
+function addCustomItem() {
+    if (!appState.activeZone) {
+        alert('Please select a zone first.');
+        return;
+    }
+    const name = document.getElementById('customName').value.trim();
+    const price = parseFloat(document.getElementById('customPrice').value);
+    const cost = parseFloat(document.getElementById('customCost').value) || 0;
+    const qty = parseFloat(document.getElementById('customQty').value) || 1;
+    const labor = parseFloat(document.getElementById('customLabor').value) || 0;
+    const desc = document.getElementById('customDesc').value.trim();
 
+    if (!name) { alert('Please enter an item name.'); return; }
+    if (!price || price <= 0) { alert('Please enter a valid sale price.'); return; }
+
+    appState.activeZone.services.push({
+        key: 'custom-' + Date.now(),
+        name: name,
+        systemName: desc || 'Custom Item',
+        quantity: qty,
+        unit: 'item',
+        price: price,
+        system: null,
+        costs: { materialCost: cost * qty },
+        laborHours: labor * qty
+    });
+
+    renderZones();
+    updateTotals();
+}
         // EVENT LISTENERS
         document.addEventListener('DOMContentLoaded', function() {
             displayServices();
